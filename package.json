@@ -3,9 +3,9 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "rimraf -rf .next && next dev --turbopack",
+        "dev": "rimraf -rf .next && next dev --turbopack -p 3003",
         "build": "rimraf -rf .next && next build",
-        "start": "next start",
+        "start": "next start -p 3003",
         "------------------ lint command": "----",
         "lint": "pnpm lint:es && pnpm lint:style",
         "lint:es": "next lint --fix",
@@ -20,7 +20,8 @@
         "react": "19.1.0",
         "react-dom": "19.1.0",
         "tailwind-merge": "^3.3.1",
-        "tailwindcss-animate": "^1.0.7"
+        "tailwindcss-animate": "^1.0.7",
+        "zustand": "^5.0.6"
     },
     "devDependencies": {
         "@antfu/eslint-config": "^4.18.0",
