@@ -1,3 +1,4 @@
+'use client';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -38,3 +39,5 @@ export const useUserStore = create<UserStore>()(
 export const useUserInfo = () => useUserStore((state) => state.userInfo);
 export const useUserToken = () => useUserStore((state) => state.userToken);
 export const useUserActions = () => useUserStore((state) => state.actions);
+
+export default useUserStore;
