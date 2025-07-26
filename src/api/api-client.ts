@@ -8,7 +8,7 @@ import userStore from '@/store/user-store';
 import { ResultStats } from '@/types/enum';
 
 const axiosInstance = axios.create({
-    baseURL: '',
+    baseURL: 'http://localhost:3005',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json;charset=utf-8',
