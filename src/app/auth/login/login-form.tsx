@@ -1,7 +1,7 @@
 import type { FormProps } from 'antd';
 
 import { Button, Checkbox, Form, Input } from 'antd';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import type { SignInReq } from '@/types/auth';
 
@@ -14,10 +14,16 @@ interface FieldType {
 }
 export default function LoginForm() {
     const signin = useSignIn();
+    const router = useRouter();
+
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-        console.log('Success:', values);
-        await signin(values as SignInReq);
-        redirect('/workbench');
+        try {
+            console.log('Success:', values);
+            await signin(values as SignInReq);
+            router.push('/workbench');
+        } catch (error) {
+            console.error('Login failed:', error);
+        }
     };
     return (
         <div className="flex flex-col gap-5">

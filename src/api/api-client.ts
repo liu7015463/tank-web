@@ -8,7 +8,7 @@ import userStore from '@/store/user-store';
 import { ResultStats } from '@/types/enum';
 
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:3005',
+    baseURL: process.env.NODE_ENV === 'development' ? '' : 'http://localhost:3005',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json;charset=utf-8',
@@ -41,7 +41,7 @@ axiosInstance.interceptors.response.use(
         if (response?.status === 401) {
             userStore.getState().actions.clearUserInfoAndToken();
         }
-        Promise.reject(error);
+        return Promise.reject(error);
     },
 );
 
