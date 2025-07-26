@@ -65,3 +65,12 @@ export type MenuMetaInfo = Partial<
 export type MenuTree = Menu & {
     children?: MenuTree[];
 };
+
+export interface User extends CommonOptions {
+    id: string; // uuid
+    username: string;
+    password: string;
+    email: string;
+    phone?: string;
+    avatar?: string;
+}

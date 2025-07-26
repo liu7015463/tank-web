@@ -13,3 +13,19 @@ export function mergeClassname(...inputs: ClassValue[]) {
     // 使用clsx处理类名值数组，然后通过twMerge进行合并和优化
     return twMerge(clsx(inputs));
 }
+
+/**
+ * join url parts
+ * @example
+ * urlJoin('/admin/', '/api/', '/user/') // '/admin/api/user'
+ * urlJoin('/admin', 'api', 'user/')     // '/admin/api/user'
+ * urlJoin('/admin/', '', '/user/')      // '/admin/user'
+ */
+export const urlJoin = (...parts: string[]) => {
+    const result = parts
+        .map((part) => {
+            return part.replace(/^\/+|\/+$/g, ''); // 去除两边/
+        })
+        .filter(Boolean);
+    return `/${result.join('/')}`;
+};
