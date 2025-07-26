@@ -1,8 +1,12 @@
 'use client';
+import { useMutation } from '@tanstack/react-query';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import type { SignInReq } from '@/types/auth';
 import type { UserInfo, UserToken } from '@/types/entity';
+
+import userService from '@/api/services/user-service';
 
 interface UserStore {
     userInfo: Partial<UserInfo>;
@@ -40,4 +44,23 @@ export const useUserInfo = () => useUserStore((state) => state.userInfo);
 export const useUserToken = () => useUserStore((state) => state.userToken);
 export const useUserActions = () => useUserStore((state) => state.actions);
 
+export const useSignIn = () => {
+    const { setUserToken, setUserInfo } = useUserActions();
+    const signInMutation = useMutation({
+        mutationFn: userService.signin,
+    });
+
+    const signin = async (data: SignInReq) => {
+        try {
+            const res = await signInMutation.mutateAsync(data);
+            const { userInfo, accessToken, refreshToken } = res;
+            setUserToken({ accessToken, refreshToken });
+            setUserInfo(userInfo);
+        } catch (err) {
+            console.log(err);
+            throw err;
+        }
+    };
+    return signin;
+};
 export default useUserStore;

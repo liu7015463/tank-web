@@ -23,3 +23,8 @@ export enum StorageEnum {
     Settings = 'settings',
     I18N = 'i18nextLng',
 }
+
+export enum UserApi {
+    SignIn = '/api/user/signin',
+    Logout = '/api/user/logout',
+}
