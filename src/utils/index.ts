@@ -1,8 +1,12 @@
 import type { ClassValue } from 'clsx';
 
 import { clsx } from 'clsx';
+import { isArray } from 'lodash';
 import { twMerge } from 'tailwind-merge';
 
+import type { RecordAny } from '@/types/entity';
+
+import { preDefinedRoutes as routes } from '@/_mock/assets';
 /**
  * 合并多个类名值为一个字符串
  *
@@ -29,3 +33,47 @@ export const urlJoin = (...parts: string[]) => {
         .filter(Boolean);
     return `/${result.join('/')}`;
 };
+
+/**
+ * 扁平化路由数组，将嵌套的路由结构展开为一维数组
+ * @param arr - 路由数组，可能包含嵌套的 routes 属性
+ * @returns 扁平化后的路由数组
+ */
+export const flattenRoutes = (arr: RecordAny<unknown>[]): RecordAny<unknown>[] => {
+    // 边界情况处理
+    if (!arr || !isArray(arr)) {
+        return [];
+    }
+
+    return arr.reduce<RecordAny<unknown>[]>((pre, item) => {
+        // 如果当前项有子路由，递归处理子路由
+        if (isArray(item.routes)) {
+            // 添加当前项（父级路由）
+            pre.push(item);
+            // 递归展开子路由并合并到结果中
+            return pre.concat(flattenRoutes(item.routes));
+        }
+
+        // 如果没有子路由，直接添加当前项
+        pre.push(item);
+        return pre;
+    }, []);
+};
+
+export function getKeyName(path: string = '/403') {
+    const truePath = path.split('?')[0];
+    const curRoute = flattenRoutes(routes).filter((item: RecordAny<unknown>) => {
+        // Type guard to ensure item has path property
+        if (typeof item.path === 'string') {
+            return item.path.includes(truePath);
+        }
+        if (isArray(item.path)) {
+            return item.path.some((p: string) => p.includes(truePath));
+        }
+        return false;
+    });
+
+    if (!curRoute[0]) return { title: '暂无权限', tabKey: '403', component: null };
+    const { name, key, component } = curRoute[0];
+    return { title: name, tabKey: key, component };
+}

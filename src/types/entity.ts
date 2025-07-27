@@ -74,3 +74,5 @@ export interface User extends CommonOptions {
     phone?: string;
     avatar?: string;
 }
+
+export type RecordAny<T = any> = Record<string, T>;

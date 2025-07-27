@@ -2,7 +2,9 @@
 
 import { Layout } from 'antd';
 
-const { Header, Footer, Sider, Content } = Layout;
+import MenuView from '@/components/menu/menu';
+
+const { Header, Footer, Content } = Layout;
 const headerStyle: React.CSSProperties = {
     textAlign: 'center',
     color: '#fff',
@@ -33,6 +35,7 @@ const siderStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    width: '15%',
 };
 
 const footerStyle: React.CSSProperties = {
@@ -55,13 +58,13 @@ export default function WorkbenchLayout({
 }>) {
     return (
         <Layout style={layoutStyle}>
-            <Sider width="25%" style={siderStyle}>
-                Sider
-            </Sider>
+            <Header style={headerStyle}>Header</Header>
             <Layout>
-                <Header style={headerStyle}>Header</Header>
-                <Content style={contentStyle}>{children || 'content'}</Content>
-                <Footer style={footerStyle}>Footer</Footer>
+                <MenuView style={siderStyle}></MenuView>
+                <Layout>
+                    <Content style={contentStyle}>{children || 'content'}</Content>
+                    <Footer style={footerStyle}>Footer</Footer>
+                </Layout>
             </Layout>
         </Layout>
     );
