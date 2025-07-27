@@ -1,11 +1,15 @@
 import type { NextRequest } from 'next/server';
 
-import { redirect } from 'next/navigation';
+import { NextResponse } from 'next/server';
 
-export default function middleware(req: NextRequest) {
-    const cookie = req.cookies.get('theme');
-    console.log(cookie);
-    redirect(cookie?.value === 'dark' ? '/dark' : '/light');
+export default function middleware(_req: NextRequest) {
+    // 暂时禁用主题重定向逻辑，让页面正常加载
+    // const cookie = req.cookies.get('theme');
+    // console.log(cookie);
+    // redirect(cookie?.value === 'dark' ? '/dark' : '/light');
+
+    // 直接返回，不做任何重定向
+    return NextResponse.next();
 }
 
 export const config = {
