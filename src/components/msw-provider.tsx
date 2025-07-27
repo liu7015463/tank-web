@@ -18,13 +18,29 @@ export default function MSWProvider({ children }: MSWProviderProps) {
             if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
                 try {
                     console.log('Starting MSW...');
+
+                    // Add a small delay to ensure the page is fully loaded
+                    await new Promise((resolve) => requestAnimationFrame(resolve));
+
                     const worker = await getWorker();
                     if (worker) {
                         await worker.start({
                             onUnhandledRequest: 'bypass',
-                            serviceWorker: { url: urlJoin('/', 'mockServiceWorker.js') },
+                            serviceWorker: {
+                                url: urlJoin('/', 'mockServiceWorker.js'),
+                                options: {
+                                    scope: '/',
+                                },
+                            },
+                            quiet: false,
+                            waitUntilReady: true,
                         });
                         console.log('✅ MSW started successfully');
+
+                        // Add error handler for worker
+                        worker.events.on('unhandledException', ({ error }: any) => {
+                            console.warn('MSW unhandled exception:', error);
+                        });
                     }
                     setIsReady(true);
                 } catch (error) {
