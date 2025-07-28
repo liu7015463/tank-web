@@ -1,7 +1,8 @@
 'use client';
 
-import { Layout } from 'antd';
+import { Col, Layout, Row } from 'antd';
 
+import Logo from '@/components/logo';
 import MenuView from '@/components/menu/menu';
 
 const { Header, Footer, Content } = Layout;
@@ -9,7 +10,7 @@ const headerStyle: React.CSSProperties = {
     textAlign: 'center',
     color: '#fff',
     height: 64,
-    paddingInline: 48,
+    paddingInline: 8,
     lineHeight: '64px',
     backgroundColor: '#4096ff',
 };
@@ -31,7 +32,6 @@ const siderStyle: React.CSSProperties = {
     lineHeight: 'normal',
     color: '#fff',
     backgroundColor: '#1677ff',
-    padding: '20px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -45,7 +45,6 @@ const footerStyle: React.CSSProperties = {
 };
 
 const layoutStyle = {
-    borderRadius: 8,
     overflow: 'hidden',
     width: '100%',
     height: '100vh',
@@ -58,9 +57,18 @@ export default function WorkbenchLayout({
 }>) {
     return (
         <Layout style={layoutStyle}>
-            <Header style={headerStyle}>Header</Header>
+            <Header style={headerStyle}>
+                <Row style={{ height: '100%', width: '100%' }}>
+                    <Col span={6}>
+                        <Logo />
+                    </Col>
+                    <Col span={6} offset={12}>
+                        <Logo />
+                    </Col>
+                </Row>
+            </Header>
             <Layout>
-                <MenuView style={siderStyle}></MenuView>
+                <MenuView style={siderStyle} />
                 <Layout>
                     <Content style={contentStyle}>{children || 'content'}</Content>
                     <Footer style={footerStyle}>Footer</Footer>
