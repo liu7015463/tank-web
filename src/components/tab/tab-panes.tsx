@@ -31,6 +31,7 @@ export const TabPanes: FC = () => {
 
     useEffect(() => {
         const routeConfig = getRouteConfig(pathname);
+        console.log('routeConfig', routeConfig);
         if (routeConfig) {
             const tabTitle = generateTabTitle(routeConfig, pathname);
             addTab({
@@ -105,9 +106,9 @@ export const TabPanes: FC = () => {
                 onClick={(e) => {
                     e.domEvent.stopPropagation();
                     clearAllTabs();
-                    router.push('/home');
+                    router.push('/workbench');
                 }}
-                disabled={tab.key === 'home'}
+                disabled={tab.key === 'Home'}
             >
                 关闭所有
             </Menu.Item>

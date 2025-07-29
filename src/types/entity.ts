@@ -109,6 +109,7 @@ export interface TabStore {
 
     getActiveTab: () => TabItem | null;
     getTabByKey: (key: string) => TabItem | null;
+    clearPersistedData: () => void;
 }
 
 export interface TabContentProps {
