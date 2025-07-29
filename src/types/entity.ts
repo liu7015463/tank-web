@@ -76,3 +76,43 @@ export interface User extends CommonOptions {
 }
 
 export type RecordAny<T = any> = Record<string, T>;
+
+export interface RouteConfig {
+    path: string;
+    name: string;
+    key: string;
+    component: string; // 组件标识符
+    icon?: string;
+    children?: RouteConfig[];
+}
+
+export interface TabItem {
+    key: string;
+    title: string;
+    path: string;
+    closable: boolean;
+    component?: string;
+}
+
+export interface TabStore {
+    tabs: TabItem[];
+    activeKey: string;
+    reloadPath: string | null;
+
+    addTab: (tab: TabItem) => void;
+    removeTab: (tabKey: string) => void;
+    setActiveTab: (key: string) => void;
+    updateTab: (key: string, tab: Partial<TabItem>) => void;
+    setReloadPath: (path: string | null) => void;
+    clearAllTabs: () => void;
+    clearOtherTabs: (tabKey: string) => void;
+
+    getActiveTab: () => TabItem | null;
+    getTabByKey: (key: string) => TabItem | null;
+}
+
+export interface TabContentProps {
+    component: string;
+    path: string;
+    key: string;
+}

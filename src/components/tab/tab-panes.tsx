@@ -23,7 +23,7 @@ interface Props {
     tabActiveKey: string;
 }
 
-const TabPanes: FC<Props> = (props) => {
+export const TabPanes: FC<Props> = (props) => {
     const curTab = useTabStore((state) => state.curTab);
     const reloadPath = useTabStore((state) => state.reloadPath);
     const setTabs = useTabStore((state) => state.setTabs);
