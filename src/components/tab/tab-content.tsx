@@ -1,7 +1,7 @@
 import { useTabStore } from '@/store/tab-store';
 import { TabContentProps } from '@/types/entity';
 import { Alert } from 'antd';
-import { ComponentType, FC, lazy, Suspense } from 'react';
+import { ComponentType, FC, lazy, Suspense, useMemo } from 'react';
 
 const componentMap: Record<string, () => Promise<{ default: ComponentType<any> }>> = {
     '/': () => import('@/app/workbench/page'),
@@ -10,13 +10,16 @@ const componentMap: Record<string, () => Promise<{ default: ComponentType<any> }
     '/500': () => import('@/app/workbench/page'),
 };
 
-const createComponent = (componentName: string) => {
-    const importPage = componentMap[componentName];
-    if (importPage) {
-        return lazy(importPage);
-    } else {
-        return <Alert message="404" type="error" description={`组件 ${componentName} 未找到`} />;
-    }
+const NotFoundComponent: ComponentType<TabContentProps> = ({ component, path, key }) => {
+    return (
+        <div className="p8 text-center">
+            <Alert message="404" type="error" description={`组件 ${component} 未找到`} />
+            <div className="mt-4 text-gray-500">
+                <p>路径: {path}</p>
+                <p>Tab Key: {key}</p>
+            </div>
+        </div>
+    );
 };
 
 // 加载中组件
@@ -40,10 +43,17 @@ export const TabContent: FC<TabContentProps> = ({ component, path, key }) => {
         return <TabRefreshing />;
     }
 
-    const Component = createComponent(component);
+    const Component = useMemo(() => {
+        const importPage = componentMap[component];
+        if (importPage) {
+            return lazy(importPage);
+        } else {
+            return () => <NotFoundComponent component={component} path={path} key={key} />;
+        }
+    }, [component]);
     return (
         <Suspense fallback={<TabLoading />}>
-            <Component path={path} key={key} />
+            <Component path={path} key={key} component={component} />
         </Suspense>
     );
 };
