@@ -3,27 +3,27 @@ import type { RouteConfig } from '@/types/entity';
 export const routes: RouteConfig[] = [
     {
         path: '/workbench',
-        name: '首页',
+        name: '首页-22',
         key: 'Home',
         component: 'Home',
         icon: 'HomeOutlined',
     },
     {
-        path: '/dashboard',
+        path: '/workbench',
         name: '仪表盘',
-        key: 'dashboard',
+        key: 'Dashboard',
         component: 'Dashboard',
         icon: 'DashboardOutlined',
     },
     {
-        path: '/users',
+        path: '/workbench',
         name: '用户管理',
         key: 'users',
         component: 'UserList',
         icon: 'UserOutlined',
     },
     {
-        path: '/users/[id]',
+        path: '/workbench',
         name: '用户详情',
         key: 'user-detail',
         component: 'UserDetail',
@@ -50,6 +50,24 @@ export const getRouteConfig = (path: string): RouteConfig | null => {
         return null;
     };
     return findRoute(routes, path);
+};
+
+export const getRouteConfigByKey = (key: string): RouteConfig | null => {
+    const findRouteByKey = (routes: RouteConfig[], key: string): RouteConfig | null => {
+        for (const route of routes) {
+            if (key === route.key) {
+                return route;
+            }
+            if (route.children) {
+                const childRoute = findRouteByKey(route.children, key);
+                if (childRoute) {
+                    return childRoute;
+                }
+            }
+        }
+        return null;
+    };
+    return findRouteByKey(routes, key);
 };
 
 export const generateTabTitle = (route: RouteConfig, path: string): string => {

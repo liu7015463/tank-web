@@ -5,9 +5,11 @@ import { Layout, Menu } from 'antd';
 import { usePathname } from 'next/navigation';
 
 import { useAppStore } from '@/store/app-store';
+import { useTabStore } from '@/store/tab-store';
 import { getKeyName } from '@/utils';
 
 import Logo from '../logo';
+import { generateTabTitle, getRouteConfigByKey } from '../router/routes';
 
 export default function MenuView({ style }: { style: CSSProperties }) {
     const collapsed = useAppStore((state) => state.collapsed);
@@ -24,7 +26,7 @@ export default function MenuView({ style }: { style: CSSProperties }) {
                 { key: '1', label: 'Option 1' },
                 { key: '2', label: 'Option 2' },
                 { key: '3', label: 'Option 3' },
-                { key: '4', label: 'Option 4' },
+                { key: 'Dashboard', label: 'Option 4' },
             ],
         },
         {
@@ -56,6 +58,7 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             ],
         },
     ];
+    const { addTab } = useTabStore();
     return (
         <Layout.Sider style={style}>
             <Menu
@@ -66,6 +69,17 @@ export default function MenuView({ style }: { style: CSSProperties }) {
                 mode="inline"
                 onClick={({ key }) => {
                     setCurrentTab(key);
+                    const routeConfig = getRouteConfigByKey(key);
+                    if (routeConfig) {
+                        const tabTitle = generateTabTitle(routeConfig, '');
+                        addTab({
+                            key: routeConfig.key,
+                            title: tabTitle,
+                            path: routeConfig.path,
+                            closable: routeConfig.key !== 'Home',
+                            component: routeConfig.component,
+                        });
+                    }
                     console.log(key);
                 }}
                 items={items}

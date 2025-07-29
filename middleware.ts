@@ -9,6 +9,7 @@ export default function middleware(_req: NextRequest) {
     // redirect(cookie?.value === 'dark' ? '/dark' : '/light');
 
     // 直接返回，不做任何重定向
+    console.log('middleware handle', _req.url);
     return NextResponse.next();
 }
 
