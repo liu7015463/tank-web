@@ -1,4 +1,4 @@
-import { RouteConfig } from '@/types/entity';
+import type { RouteConfig } from '@/types/entity';
 
 export const routes: RouteConfig[] = [
     {

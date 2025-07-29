@@ -1,225 +1,142 @@
 import type { FC } from 'react';
 
-import { Alert, Dropdown, Menu, Tabs } from 'antd';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Dropdown, Menu, Tabs } from 'antd';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+import type { TabItem } from '@/types/entity';
 
 import { useTabStore } from '@/store/tab-store';
-import { getKeyName } from '@/utils';
+
+import { generateTabTitle, getRouteConfig } from '../router/routes';
+import { TabContent } from './tab-content';
 
 const { TabPane } = Tabs;
 
-const initPane = [{ title: '首页', key: 'home', content: 'home', closable: false, path: '/' }];
-
-interface Props {
-    defaultActiveKey: string;
-    panesItem: {
-        title: string;
-        content: string;
-        key: string;
-        closable: boolean;
-        path: string;
-    };
-    tabActiveKey: string;
-}
-
-export const TabPanes: FC<Props> = (props) => {
-    const curTab = useTabStore((state) => state.curTab);
-    const reloadPath = useTabStore((state) => state.reloadPath);
-    const setTabs = useTabStore((state) => state.setTabs);
-    const setReloadPath = useTabStore((state) => state.setReloadPath);
-
-    const [activeKey, setActiveKey] = useState<string>('');
-    const [panes, setPanes] = useState(initPane);
-    const [isReload, setIsReload] = useState(false);
-    const [selectedPane, setSelectedPane] = useState(initPane[0]);
-    const pathRef = useRef('');
-
-    const { defaultActiveKey, panesItem, tabActiveKey } = props;
-
+export const TabPanes: FC = () => {
     const router = useRouter();
     const pathname = usePathname();
-    const searchParams = useSearchParams();
-    const search = searchParams.toString();
+    const {
+        tabs,
+        activeKey,
+        reloadPath,
+        addTab,
+        removeTab,
+        setActiveTab,
+        setReloadPath,
+        clearAllTabs,
+        clearOtherTabs,
+    } = useTabStore();
 
-    const fullPath = pathname + (search ? `?${search}` : '');
-
-    // 记录当前打开的tab
-    const storeTabs = useCallback(
-        (p: any): void => {
-            const pathArr = p.map((item: any) => item.path);
-            setTabs(pathArr);
-        },
-        [setTabs],
-    );
-
-    // 从本地存储中恢复已打开的tab列表
-    const resetTabs = useCallback((): void => {
-        const initPanes = curTab.reduce((acc: any, cur: any) => {
-            const { title, tabKey, component } = getKeyName(cur.path);
-            return [...acc, { title, key: tabKey, component, closable: tabKey !== 'home', path: cur.path }];
-        }, []);
-        const { tabKey } = getKeyName(pathname);
-        setTabs(initPanes);
-        setActiveKey(tabKey as string);
-    }, [curTab, pathname]);
-
-    // 初始化页面
     useEffect(() => {
-        resetTabs();
-    }, [resetTabs]);
-
-    // tab切换
-    const onChange = (key: string): void => {
-        setActiveKey(key);
-    };
-
-    const remove = (key: string): void => {
-        const delIndex = panes.findIndex((item) => item.key === key);
-        panes.slice(delIndex, 1);
-
-        // 删除非当前tab
-        if (key !== activeKey) {
-            const next = activeKey;
-            setPanes(panes);
-            setActiveKey(next);
-            storeTabs(panes);
-            return;
+        const routeConfig = getRouteConfig(pathname);
+        if (routeConfig) {
+            const tabTitle = generateTabTitle(routeConfig, pathname);
+            addTab({
+                key: routeConfig.key,
+                title: tabTitle,
+                path: pathname,
+                closable: routeConfig.key !== 'home',
+                component: routeConfig.component,
+            });
         }
-        // 删除当前tab，地址往前推
-        const next = curTab[delIndex - 1];
-        router.push(next);
-        setPanes(panes);
-        storeTabs(panes);
+    }, [pathname, addTab]);
+
+    // Tab切换处理
+    const handleTabChange = (key: string) => {
+        const tab = tabs.find((t) => t.key === key);
+        if (tab) {
+            setActiveTab(key);
+            router.push(tab.path);
+        }
     };
 
-    // tab点击
-    const onTabClick = (key: string) => {
-        const { path } = panes.filter((item) => item.key === key)[0];
-        router.push(path);
+    // 关闭tab
+    const handleTabClose = (key: string) => {
+        const isActive = key === activeKey;
+        removeTab(key);
+        if (isActive && tabs.length > 1) {
+            const idx = tabs.findIndex((t) => t.key === key);
+            const nextTab = tabs[Math.max(0, idx - 1)];
+            if (nextTab && nextTab.key !== key) {
+                router.push(nextTab.path);
+            }
+        }
     };
 
-    // 刷新当前 tab
-    const refreshTab = (): void => {
-        setIsReload(true);
+    // 刷新当前tab
+    const handleRefreshTab = () => {
+        setReloadPath(pathname);
         setTimeout(() => {
-            setIsReload(false);
-        }, 1000);
-
-        setReloadPath(fullPath);
-        setTimeout(() => {
-            setReloadPath('');
+            setReloadPath(null);
         }, 1000);
     };
 
-    // 关闭其他或关闭所有
-    const removeAll = async (isCloseAll: boolean = false) => {
-        const { path, key } = selectedPane;
-        router.push(isCloseAll ? '/workbench' : path);
-        const homePane = initPane;
-        const nowPane = key !== 'home' && !isCloseAll ? [...homePane, selectedPane] : homePane;
-        setPanes(nowPane);
-        setActiveKey(isCloseAll ? 'home' : key);
-        storeTabs(nowPane);
-    };
-
-    useEffect(() => {
-        removeAll();
-        const newPath = fullPath;
-        if (!panesItem.path || panesItem.path === pathRef.current) {
-            return;
-        }
-        pathRef.current = newPath;
-        const index = panes.findIndex((item) => item.key === panesItem.key);
-        if (!panesItem.key || (index > -1 && panes[index].path === newPath)) {
-            setActiveKey(tabActiveKey);
-            return;
-        }
-        if (index > -1) {
-            panes[index].path = newPath;
-            setPanes(panes);
-            setActiveKey(tabActiveKey);
-            return;
-        }
-        panes.push(panesItem);
-        setPanes(panes);
-        setActiveKey(tabActiveKey);
-        storeTabs(panes);
-    }, [panes, panesItem, pathname, search, resetTabs, storeTabs, tabActiveKey]);
-
-    const isDisabled = selectedPane.key === 'home';
-    const menu = (
+    const menu = (tab: TabItem) => (
         <Menu>
-            <Menu.Item key="1" onClick={() => refreshTab()} disabled={selectedPane.path !== fullPath}>
+            <Menu.Item key="refresh" onClick={handleRefreshTab} disabled={tab.path !== pathname}>
                 刷新
             </Menu.Item>
             <Menu.Item
-                key="2"
+                key="close"
                 onClick={(e) => {
                     e.domEvent.stopPropagation();
-                    remove(selectedPane.key);
+                    handleTabClose(tab.key);
                 }}
-                disabled={isDisabled}
+                disabled={tab.key === 'home'}
             >
                 关闭
             </Menu.Item>
             <Menu.Item
-                key="3"
+                key="closeOthers"
                 onClick={(e) => {
                     e.domEvent.stopPropagation();
-                    removeAll();
+                    clearOtherTabs(tab.key);
+                    if (tab.key !== activeKey) {
+                        router.push(tab.path);
+                    }
                 }}
             >
                 关闭其他
             </Menu.Item>
             <Menu.Item
-                key="4"
+                key="closeAll"
                 onClick={(e) => {
                     e.domEvent.stopPropagation();
-                    removeAll(true);
+                    clearAllTabs();
+                    router.push('/home');
                 }}
-                disabled={isDisabled}
+                disabled={tab.key === 'home'}
             >
                 关闭所有
             </Menu.Item>
         </Menu>
     );
 
-    // 阻止右键默认事件
-    const preventDefault = (e: { preventDefault: () => void }, panel: object) => {
-        e.preventDefault();
-        setSelectedPane(panel as any);
-    };
     return (
-        <div>
+        <div className="h-full">
             <Tabs
-                defaultActiveKey={defaultActiveKey}
+                className="h-full"
+                activeKey={activeKey}
                 hideAdd={true}
-                onChange={onChange}
-                onTabClick={onTabClick}
+                onChange={handleTabChange}
                 type="editable-card"
                 size="small"
             >
-                {panes.map((pane) => (
+                {tabs.map((tab) => (
                     <TabPane
-                        key={pane.key}
-                        closable={pane.closable}
+                        key={tab.key}
+                        closable={tab.closable}
                         tab={
-                            <Dropdown menu={menu as any} placement="bottomLeft" trigger={['contextMenu']}>
-                                <span onContextMenu={(e) => preventDefault(e, pane)}>
-                                    {isReload && pane.path === fullPath && pane.path !== '/403' && '↻'}
-                                    {pane.title}
+                            <Dropdown overlay={menu(tab)} placement="bottomLeft" trigger={['contextMenu']}>
+                                <span className="inline-flex items-center">
+                                    {reloadPath === tab.path && '↻'}
+                                    {tab.title}
                                 </span>
                             </Dropdown>
                         }
                     >
-                        {reloadPath !== pane.path ? (
-                            pane.content
-                        ) : (
-                            <div style={{ height: '100vh' }}>
-                                <Alert message="刷新中..." type="info" />
-                            </div>
-                        )}
+                        <TabContent component={tab.component || 'Home'} path={tab.path} key={tab.key} />
                     </TabPane>
                 ))}
             </Tabs>

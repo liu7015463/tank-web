@@ -1,7 +1,11 @@
-import { useTabStore } from '@/store/tab-store';
-import { TabContentProps } from '@/types/entity';
+import type { ComponentType, FC } from 'react';
+
 import { Alert } from 'antd';
-import { ComponentType, FC, lazy, Suspense, useMemo } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
+
+import type { TabContentProps } from '@/types/entity';
+
+import { useTabStore } from '@/store/tab-store';
 
 const componentMap: Record<string, () => Promise<{ default: ComponentType<any> }>> = {
     '/': () => import('@/app/workbench/page'),
@@ -24,8 +28,8 @@ const NotFoundComponent: ComponentType<TabContentProps> = ({ component, path, ke
 
 // 加载中组件
 const TabLoading = () => (
-    <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-500"></div>
         <span className="ml-2">加载中...</span>
     </div>
 );
@@ -39,9 +43,6 @@ const TabRefreshing = () => (
 
 export const TabContent: FC<TabContentProps> = ({ component, path, key }) => {
     const reloadPath = useTabStore((state) => state.reloadPath);
-    if (reloadPath === path) {
-        return <TabRefreshing />;
-    }
 
     const Component = useMemo(() => {
         const importPage = componentMap[component];
@@ -51,6 +52,10 @@ export const TabContent: FC<TabContentProps> = ({ component, path, key }) => {
             return () => <NotFoundComponent component={component} path={path} key={key} />;
         }
     }, [component]);
+
+    if (reloadPath === path) {
+        return <TabRefreshing />;
+    }
     return (
         <Suspense fallback={<TabLoading />}>
             <Component path={path} key={key} component={component} />

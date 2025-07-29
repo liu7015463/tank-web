@@ -1,8 +1,8 @@
-import { TabItem, TabStore } from '@/types/entity';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
 import { immer } from 'zustand/middleware/immer';
+
+import type { TabItem, TabStore } from '@/types/entity';
 
 export const useTabStore = create<TabStore>()(
     persist(
@@ -34,10 +34,17 @@ export const useTabStore = create<TabStore>()(
             setReloadPath: (path: string | null) => {
                 set((state) => (state.reloadPath = path));
             },
-            removeTab: (key: string) => {
-                const tabs = get().tabs.filter((tab) => tab.key !== key);
-                set({ tabs });
-            },
+            removeTab: (key: string) =>
+                set((state) => {
+                    const idx = state.tabs.findIndex((tab: TabItem) => tab.key === key);
+                    if (idx === -1 || key === 'home') {
+                        return;
+                    }
+                    state.tabs.splice(idx, 1);
+                    if (state.activeKey === key) {
+                        state.activeKey = state.tabs[Math.max(idx - 1, 0)];
+                    }
+                }),
             updateTab: (key: string, update: Partial<TabItem>) =>
                 set((state) => {
                     const tab = state.tabs.filter((tab: TabItem) => tab.key === key);
