@@ -16,6 +16,7 @@ const { TabPane } = Tabs;
 export const TabPanes: FC = () => {
     const router = useRouter();
     const pathname = usePathname();
+    console.log('pathname', pathname);
     const {
         tabs,
         activeKey,
@@ -36,7 +37,7 @@ export const TabPanes: FC = () => {
                 key: routeConfig.key,
                 title: tabTitle,
                 path: pathname,
-                closable: routeConfig.key !== 'home',
+                closable: routeConfig.key !== 'Home',
                 component: routeConfig.component,
             });
         }
@@ -112,7 +113,7 @@ export const TabPanes: FC = () => {
             </Menu.Item>
         </Menu>
     );
-
+    console.log('tabs', tabs);
     return (
         <div className="h-full">
             <Tabs

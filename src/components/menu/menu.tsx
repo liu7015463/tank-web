@@ -5,16 +5,14 @@ import { Layout, Menu } from 'antd';
 import { usePathname } from 'next/navigation';
 
 import { useAppStore } from '@/store/app-store';
-import { useUserInfo } from '@/store/user-store';
 import { getKeyName } from '@/utils';
 
 import Logo from '../logo';
 
 export default function MenuView({ style }: { style: CSSProperties }) {
-    const userInfo = useUserInfo();
     const collapsed = useAppStore((state) => state.collapsed);
     const path = usePathname();
-    const { tabKey: curKey = 'home' } = getKeyName(path);
+    const { tabKey: _curKey = 'home' } = getKeyName(path);
 
     const setCurrentTab = useAppStore((state) => state.setCurrentTab);
     const items: ItemType[] = [

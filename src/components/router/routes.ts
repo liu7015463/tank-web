@@ -2,9 +2,9 @@ import type { RouteConfig } from '@/types/entity';
 
 export const routes: RouteConfig[] = [
     {
-        path: '/',
+        path: '/workbench',
         name: '首页',
-        key: 'home',
+        key: 'Home',
         component: 'Home',
         icon: 'HomeOutlined',
     },
@@ -53,5 +53,5 @@ export const getRouteConfig = (path: string): RouteConfig | null => {
 };
 
 export const generateTabTitle = (route: RouteConfig, path: string): string => {
-    return route.name || route.key;
+    return route.name || route.key || path;
 };

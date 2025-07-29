@@ -8,7 +8,7 @@ import type { TabContentProps } from '@/types/entity';
 import { useTabStore } from '@/store/tab-store';
 
 const componentMap: Record<string, () => Promise<{ default: ComponentType<any> }>> = {
-    '/': () => import('@/app/workbench/page'),
+    Home: () => import('@/app/workbench/page'),
     '/404': () => import('@/app/workbench/page'),
     '/403': () => import('@/app/workbench/page'),
     '/500': () => import('@/app/workbench/page'),

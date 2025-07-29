@@ -14,7 +14,7 @@ interface AppState {
 export const useAppStore = create<AppState>()((set) => ({
     theme: 'dark',
     currentTab: 'home',
-    collapsed: true,
+    collapsed: false,
     menuMode: 'horizontal',
     setTheme: (theme) => set({ theme }),
     setCurrentTab: (tab) => set({ currentTab: tab }),
