@@ -2,9 +2,11 @@
 
 import { Col, Layout, Row } from 'antd';
 
+import { Icon } from '@/components/icon';
 import Logo from '@/components/logo';
 import MenuView from '@/components/menu/menu';
 import { TabPanes } from '@/components/tab';
+import { useAppStore } from '@/store/app-store';
 
 const { Header, Footer } = Layout;
 const headerStyle: React.CSSProperties = {
@@ -44,6 +46,11 @@ export default function WorkbenchLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const { collapsed, setCollapsed } = useAppStore();
+    function handleClick() {
+        console.log('click the logo');
+        setCollapsed(!collapsed);
+    }
     return (
         <Layout style={layoutStyle}>
             <Header style={headerStyle}>
@@ -51,7 +58,10 @@ export default function WorkbenchLayout({
                     <Col span={6}>
                         <Logo />
                     </Col>
-                    <Col span={6} offset={12}>
+                    <Col span={12}>
+                        <Icon icon="mdi-light:home" onClick={handleClick} size={40} />
+                    </Col>
+                    <Col span={6}>
                         <Logo />
                     </Col>
                 </Row>

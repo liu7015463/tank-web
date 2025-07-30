@@ -9,7 +9,7 @@ import { useAppStore } from '@/store/app-store';
 import { useTabStore } from '@/store/tab-store';
 import { getKeyName } from '@/utils';
 
-import Logo from '../logo';
+import Icon from '../icon/icon';
 import { generateTabTitle, getRouteConfigByKey } from '../router/routes';
 
 export default function MenuView({ style }: { style: CSSProperties }) {
@@ -26,17 +26,17 @@ export default function MenuView({ style }: { style: CSSProperties }) {
         {
             key: 'sub1',
             label: 'Navigation One',
-            icon: <Logo size={28} />,
+            icon: <Icon icon="noto:blowfish" color="blue" size={28} />,
             children: [
                 { key: 'UserDetail', label: 'Option 2' },
-                { key: 'UserList', label: 'Option 3' },
+                { key: 'UserList1', label: 'Option 3' },
                 { key: 'Dashboard', label: 'Option 4' },
             ],
         },
         {
             key: 'sub2',
             label: 'Navigation Two',
-            icon: <Logo size={28} />,
+            icon: <Icon icon="mdi-light:home" size={28} color="red" />,
             children: [
                 { key: 'Dashboard2', label: 'Dashboard (测试自动展开)' },
                 { key: '6', label: 'Option 6' },
@@ -44,7 +44,7 @@ export default function MenuView({ style }: { style: CSSProperties }) {
                     key: 'sub3',
                     label: 'Submenu',
                     children: [
-                        { key: 'UserList2', label: 'User List (嵌套测试)' },
+                        { key: 'UserList', label: 'User List (嵌套测试)' },
                         { key: '8', label: 'Option 8' },
                     ],
                 },
@@ -53,7 +53,7 @@ export default function MenuView({ style }: { style: CSSProperties }) {
         {
             key: 'sub4',
             label: 'Navigation Three',
-            icon: <Logo size={20} />,
+            icon: <Icon icon="material-symbols:battery-android-bolt-outline" size={28} color="blue" />,
             children: [
                 { key: '9', label: 'Option 9' },
                 { key: '10', label: 'Option 10' },
@@ -94,8 +94,10 @@ export default function MenuView({ style }: { style: CSSProperties }) {
     // 处理菜单选择，确保父级展开
     const handleMenuSelect = useCallback(
         ({ key }: { key: string }) => {
-            console.log('🎯 菜单点击选择:', key);
-
+            console.log('菜单点击选择:', key);
+            if (collapsed) {
+                return;
+            }
             // 查找所有父级菜单路径
             const parentKeys = findParentKeys(key, items);
             if (parentKeys.length > 0) {
@@ -116,7 +118,7 @@ export default function MenuView({ style }: { style: CSSProperties }) {
     // 监听 activeKey 变化，自动展开对应的父级菜单
     useEffect(() => {
         if (activeKey) {
-            console.log('🎯 activeKey 变化:', activeKey);
+            console.log('activeKey 变化:', activeKey);
             handleMenuSelect({ key: activeKey });
         }
     }, [activeKey, handleMenuSelect]);
@@ -144,11 +146,26 @@ export default function MenuView({ style }: { style: CSSProperties }) {
     };
 
     return (
-        <Layout.Sider style={style}>
+        <Layout.Sider
+            style={{
+                ...style,
+                overflow: 'hidden',
+                boxSizing: 'border-box',
+            }}
+            collapsed={collapsed}
+        >
             <Menu
                 theme="dark"
-                inlineCollapsed={collapsed}
-                style={{ height: '100%', width: '100%' }}
+                style={{
+                    height: '100%',
+                    flex: 1,
+                    minWidth: 0,
+                    maxWidth: '100%',
+                    border: 'none',
+                    margin: 0,
+                    padding: 0,
+                    boxSizing: 'border-box',
+                }}
                 defaultSelectedKeys={['Home']}
                 selectedKeys={[activeKey]}
                 openKeys={openKeys}
@@ -157,7 +174,7 @@ export default function MenuView({ style }: { style: CSSProperties }) {
                 onClick={({ key }) => handleMenuClick(key)}
                 onSelect={handleMenuSelect}
                 items={items}
-            ></Menu>
+            />
         </Layout.Sider>
     );
 }

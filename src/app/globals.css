@@ -32,6 +32,11 @@ a {
     }
 }
 
+li.ant-menu-item li.ant-menu-item-selected {
+    padding-left: 0;
+    padding-right: 0;
+}
+
 @layer base {
     :root {
         --background: 0 0% 100%;
