@@ -3,7 +3,7 @@ import type { RouteConfig } from '@/types/entity';
 export const routes: RouteConfig[] = [
     {
         path: '/workbench',
-        name: '首页-22',
+        name: '首页',
         key: 'Home',
         component: 'Home',
         icon: 'HomeOutlined',
@@ -18,14 +18,14 @@ export const routes: RouteConfig[] = [
     {
         path: '/workbench',
         name: '用户管理',
-        key: 'users',
+        key: 'UserList',
         component: 'UserList',
         icon: 'UserOutlined',
     },
     {
         path: '/workbench',
         name: '用户详情',
-        key: 'user-detail',
+        key: 'UserDetail',
         component: 'UserDetail',
     },
 ];

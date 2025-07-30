@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 
-import { Dropdown, Menu, Tabs } from 'antd';
+import { Dropdown, Tabs } from 'antd';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -30,38 +30,38 @@ export const TabPanes: FC = () => {
     } = useTabStore();
 
     useEffect(() => {
-        const routeConfig = getRouteConfig(pathname);
-        console.log('routeConfig', routeConfig);
-        if (routeConfig) {
-            const tabTitle = generateTabTitle(routeConfig, pathname);
-            addTab({
-                key: routeConfig.key,
-                title: tabTitle,
-                path: pathname,
-                closable: routeConfig.key !== 'Home',
-                component: routeConfig.component,
-            });
+        // 只在 /workbench 路径下初始化默认 Home tab
+        if (pathname === '/workbench' && tabs.length === 0) {
+            const homeConfig = getRouteConfig('/workbench');
+            if (homeConfig) {
+                const tabTitle = generateTabTitle(homeConfig, '/workbench');
+                addTab({
+                    key: homeConfig.key,
+                    title: tabTitle,
+                    path: '/workbench',
+                    closable: false,
+                    component: homeConfig.component,
+                });
+            }
         }
-    }, [pathname, addTab]);
+    }, [pathname, tabs.length, addTab]);
 
-    // Tab切换处理
+    // Tab切换处理 - 只更新状态，不跳转 URL
     const handleTabChange = (key: string) => {
-        const tab = tabs.find((t) => t.key === key);
-        if (tab) {
-            setActiveTab(key);
-            router.push(tab.path);
-        }
+        console.log('切换到 Tab:', key);
+        setActiveTab(key);
     };
 
-    // 关闭tab
+    // 关闭tab - 只更新状态，不跳转 URL
     const handleTabClose = (key: string) => {
+        console.log('关闭 Tab:', key);
         const isActive = key === activeKey;
         removeTab(key);
         if (isActive && tabs.length > 1) {
             const idx = tabs.findIndex((t) => t.key === key);
             const nextTab = tabs[Math.max(0, idx - 1)];
             if (nextTab && nextTab.key !== key) {
-                router.push(nextTab.path);
+                setActiveTab(nextTab.key);
             }
         }
     };
@@ -74,46 +74,39 @@ export const TabPanes: FC = () => {
         }, 1000);
     };
 
-    const menu = (tab: TabItem) => (
-        <Menu>
-            <Menu.Item key="refresh" onClick={handleRefreshTab} disabled={tab.path !== pathname}>
-                刷新
-            </Menu.Item>
-            <Menu.Item
-                key="close"
-                onClick={(e) => {
-                    e.domEvent.stopPropagation();
-                    handleTabClose(tab.key);
-                }}
-                disabled={tab.key === 'home'}
-            >
-                关闭
-            </Menu.Item>
-            <Menu.Item
-                key="closeOthers"
-                onClick={(e) => {
-                    e.domEvent.stopPropagation();
-                    clearOtherTabs(tab.key);
-                    if (tab.key !== activeKey) {
-                        router.push(tab.path);
-                    }
-                }}
-            >
-                关闭其他
-            </Menu.Item>
-            <Menu.Item
-                key="closeAll"
-                onClick={(e) => {
-                    e.domEvent.stopPropagation();
-                    clearAllTabs();
-                    router.push('/workbench');
-                }}
-                disabled={tab.key === 'Home'}
-            >
-                关闭所有
-            </Menu.Item>
-        </Menu>
-    );
+    const getMenuItems = (tab: TabItem) => [
+        {
+            key: 'refresh',
+            label: '刷新',
+            disabled: tab.path !== pathname,
+            onClick: () => handleRefreshTab(),
+        },
+        {
+            key: 'close',
+            label: '关闭',
+            disabled: tab.key === 'Home',
+            onClick: () => handleTabClose(tab.key),
+        },
+        {
+            key: 'closeOthers',
+            label: '关闭其他',
+            onClick: () => {
+                clearOtherTabs(tab.key);
+                if (tab.key !== activeKey) {
+                    router.push(tab.path);
+                }
+            },
+        },
+        {
+            key: 'closeAll',
+            label: '关闭所有',
+            disabled: tab.key === 'Home',
+            onClick: () => {
+                clearAllTabs();
+                router.push('/workbench');
+            },
+        },
+    ];
     console.log('tabs', tabs);
     return (
         <div className="h-full">
@@ -130,7 +123,11 @@ export const TabPanes: FC = () => {
                         key={tab.key}
                         closable={tab.closable}
                         tab={
-                            <Dropdown overlay={menu(tab)} placement="bottomLeft" trigger={['contextMenu']}>
+                            <Dropdown
+                                menu={{ items: getMenuItems(tab) }}
+                                placement="bottomLeft"
+                                trigger={['contextMenu']}
+                            >
                                 <span className="inline-flex items-center">
                                     {reloadPath === tab.path && '↻'}
                                     {tab.title}
@@ -138,7 +135,7 @@ export const TabPanes: FC = () => {
                             </Dropdown>
                         }
                     >
-                        <TabContent component={tab.component || 'Home'} path={tab.path} key={tab.key} />
+                        <TabContent component={tab.component || 'Home'} path={tab.path} tabKey={tab.key} />
                     </TabPane>
                 ))}
             </Tabs>

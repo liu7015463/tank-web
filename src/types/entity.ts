@@ -114,5 +114,5 @@ export interface TabStore {
 export interface TabContentProps {
     component: string;
     path: string;
-    key: string;
+    tabKey: string;
 }

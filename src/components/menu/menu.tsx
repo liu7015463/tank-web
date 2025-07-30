@@ -24,8 +24,8 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             icon: <Logo size={28} />,
             children: [
                 { key: '1', label: 'Option 1' },
-                { key: '2', label: 'Option 2' },
-                { key: '3', label: 'Option 3' },
+                { key: 'UserDetail', label: 'Option 2' },
+                { key: 'UserList', label: 'Option 3' },
                 { key: 'Dashboard', label: 'Option 4' },
             ],
         },
@@ -58,7 +58,30 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             ],
         },
     ];
-    const { addTab } = useTabStore();
+    const { addTab, setActiveTab } = useTabStore();
+
+    // 处理菜单点击，只在 Tab 内切换，不跳转 URL
+    const handleMenuClick = (key: string) => {
+        setCurrentTab(key);
+        const routeConfig = getRouteConfigByKey(key);
+        if (routeConfig) {
+            const tabTitle = generateTabTitle(routeConfig, routeConfig.path);
+
+            // 先添加 Tab
+            addTab({
+                key: routeConfig.key,
+                title: tabTitle,
+                path: routeConfig.path, // 保持原路径用于显示，但不实际跳转
+                closable: routeConfig.key !== 'Home',
+                component: routeConfig.component,
+            });
+
+            // 然后设置为活跃 Tab（不跳转 URL）
+            setActiveTab(routeConfig.key);
+        }
+        console.log('菜单点击:', key);
+    };
+
     return (
         <Layout.Sider style={style}>
             <Menu
@@ -67,21 +90,7 @@ export default function MenuView({ style }: { style: CSSProperties }) {
                 style={{ height: '100%', width: '100%' }}
                 defaultSelectedKeys={['1']}
                 mode="inline"
-                onClick={({ key }) => {
-                    setCurrentTab(key);
-                    const routeConfig = getRouteConfigByKey(key);
-                    if (routeConfig) {
-                        const tabTitle = generateTabTitle(routeConfig, '');
-                        addTab({
-                            key: routeConfig.key,
-                            title: tabTitle,
-                            path: routeConfig.path,
-                            closable: routeConfig.key !== 'Home',
-                            component: routeConfig.component,
-                        });
-                    }
-                    console.log(key);
-                }}
+                onClick={({ key }) => handleMenuClick(key)}
                 items={items}
             ></Menu>
         </Layout.Sider>
