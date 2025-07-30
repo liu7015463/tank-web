@@ -1,8 +1,9 @@
+import type { TabsProps } from 'antd';
 import type { FC } from 'react';
 
 import { Dropdown, Tabs } from 'antd';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import type { TabItem } from '@/types/entity';
 
@@ -10,8 +11,6 @@ import { useTabStore } from '@/store/tab-store';
 
 import { generateTabTitle, getRouteConfig } from '../router/routes';
 import { TabContent } from './tab-content';
-
-const { TabPane } = Tabs;
 
 export const TabPanes: FC = () => {
     const router = useRouter();
@@ -107,6 +106,23 @@ export const TabPanes: FC = () => {
             },
         },
     ];
+    // 使用 useMemo 优化 items 数组的创建
+    const tabItems: TabsProps['items'] = useMemo(() => {
+        return tabs.map((tab) => ({
+            key: tab.key,
+            closable: tab.closable,
+            label: (
+                <Dropdown menu={{ items: getMenuItems(tab) }} placement="bottomLeft" trigger={['contextMenu']}>
+                    <span className="inline-flex items-center">
+                        {reloadPath === tab.path && '↻'}
+                        {tab.title}
+                    </span>
+                </Dropdown>
+            ),
+            children: <TabContent component={tab.component || 'Home'} path={tab.path} tabKey={tab.key} />,
+        }));
+    }, [tabs, reloadPath, getMenuItems]);
+
     console.log('tabs', tabs);
     return (
         <div className="h-full">
@@ -115,30 +131,15 @@ export const TabPanes: FC = () => {
                 activeKey={activeKey}
                 hideAdd={true}
                 onChange={handleTabChange}
+                onEdit={(targetKey, action) => {
+                    if (action === 'remove' && typeof targetKey === 'string') {
+                        handleTabClose(targetKey);
+                    }
+                }}
                 type="editable-card"
                 size="small"
-            >
-                {tabs.map((tab) => (
-                    <TabPane
-                        key={tab.key}
-                        closable={tab.closable}
-                        tab={
-                            <Dropdown
-                                menu={{ items: getMenuItems(tab) }}
-                                placement="bottomLeft"
-                                trigger={['contextMenu']}
-                            >
-                                <span className="inline-flex items-center">
-                                    {reloadPath === tab.path && '↻'}
-                                    {tab.title}
-                                </span>
-                            </Dropdown>
-                        }
-                    >
-                        <TabContent component={tab.component || 'Home'} path={tab.path} tabKey={tab.key} />
-                    </TabPane>
-                ))}
-            </Tabs>
+                items={tabItems}
+            />
         </div>
     );
 };

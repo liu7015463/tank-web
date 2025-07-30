@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 
 import { Layout, Menu } from 'antd';
 import { usePathname } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useAppStore } from '@/store/app-store';
 import { useTabStore } from '@/store/tab-store';
@@ -19,11 +20,14 @@ export default function MenuView({ style }: { style: CSSProperties }) {
     const setCurrentTab = useAppStore((state) => state.setCurrentTab);
     const items: ItemType[] = [
         {
+            key: 'Home',
+            label: 'Option 1',
+        },
+        {
             key: 'sub1',
             label: 'Navigation One',
             icon: <Logo size={28} />,
             children: [
-                { key: '1', label: 'Option 1' },
                 { key: 'UserDetail', label: 'Option 2' },
                 { key: 'UserList', label: 'Option 3' },
                 { key: 'Dashboard', label: 'Option 4' },
@@ -34,13 +38,13 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             label: 'Navigation Two',
             icon: <Logo size={28} />,
             children: [
-                { key: '5', label: 'Option 5' },
+                { key: 'Dashboard2', label: 'Dashboard (测试自动展开)' },
                 { key: '6', label: 'Option 6' },
                 {
                     key: 'sub3',
                     label: 'Submenu',
                     children: [
-                        { key: '7', label: 'Option 7' },
+                        { key: 'UserList2', label: 'User List (嵌套测试)' },
                         { key: '8', label: 'Option 8' },
                     ],
                 },
@@ -58,7 +62,64 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             ],
         },
     ];
-    const { addTab, setActiveTab } = useTabStore();
+    const { addTab, activeKey, setActiveTab } = useTabStore();
+
+    // 管理菜单展开状态
+    const [openKeys, setOpenKeys] = useState<string[]>([]); // 默认全部收起，测试自动展开功能
+
+    // 查找子菜单项的所有父级菜单路径
+    const findParentKeys = (targetKey: string, menuItems: ItemType[], parentPath: string[] = []): string[] => {
+        for (const item of menuItems) {
+            if (item && typeof item === 'object' && 'children' in item && item.children) {
+                const currentPath = [...parentPath, item.key as string];
+
+                // 检查直接子项
+                const hasDirectChild = item.children.some(
+                    (child) => child && typeof child === 'object' && 'key' in child && child.key === targetKey,
+                );
+                if (hasDirectChild) {
+                    return currentPath;
+                }
+
+                // 递归检查嵌套子项
+                const nestedPath = findParentKeys(targetKey, item.children as ItemType[], currentPath);
+                if (nestedPath.length > 0) {
+                    return nestedPath;
+                }
+            }
+        }
+        return [];
+    };
+
+    // 处理菜单选择，确保父级展开
+    const handleMenuSelect = useCallback(
+        ({ key }: { key: string }) => {
+            console.log('🎯 菜单点击选择:', key);
+
+            // 查找所有父级菜单路径
+            const parentKeys = findParentKeys(key, items);
+            if (parentKeys.length > 0) {
+                // 使用函数式更新，避免依赖 openKeys
+                setOpenKeys((prevOpenKeys) => {
+                    const keysToOpen = parentKeys.filter((parentKey) => !prevOpenKeys.includes(parentKey));
+                    if (keysToOpen.length > 0) {
+                        console.log('📂 自动展开父级菜单:', keysToOpen);
+                        return [...prevOpenKeys, ...keysToOpen];
+                    }
+                    return prevOpenKeys;
+                });
+            }
+        },
+        [items],
+    );
+
+    // 监听 activeKey 变化，自动展开对应的父级菜单
+    useEffect(() => {
+        if (activeKey) {
+            console.log('🎯 activeKey 变化:', activeKey);
+            handleMenuSelect({ key: activeKey });
+        }
+    }, [activeKey, handleMenuSelect]);
 
     // 处理菜单点击，只在 Tab 内切换，不跳转 URL
     const handleMenuClick = (key: string) => {
@@ -88,9 +149,13 @@ export default function MenuView({ style }: { style: CSSProperties }) {
                 theme="dark"
                 inlineCollapsed={collapsed}
                 style={{ height: '100%', width: '100%' }}
-                defaultSelectedKeys={['1']}
+                defaultSelectedKeys={['Home']}
+                selectedKeys={[activeKey]}
+                openKeys={openKeys}
+                onOpenChange={setOpenKeys}
                 mode="inline"
                 onClick={({ key }) => handleMenuClick(key)}
+                onSelect={handleMenuSelect}
                 items={items}
             ></Menu>
         </Layout.Sider>
