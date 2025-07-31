@@ -1,7 +1,7 @@
 import type { ItemType } from 'antd/es/menu/interface';
 import type { CSSProperties } from 'react';
 
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Popover } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useAppStore } from '@/store/app-store';
@@ -41,7 +41,15 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             label: 'Navigation Two',
             icon: <Icon icon="mdi-light:home" size={28} color="red" />,
             children: [
-                { key: 'Dashboard2', label: 'Dashboard (测试自动展开)', style: menuItemStyle },
+                {
+                    key: 'Dashboard2',
+                    label: (
+                        <Popover placement="right" content="Dashboard (测试自动展开)">
+                            Dashboard (测试自动展开)
+                        </Popover>
+                    ),
+                    style: menuItemStyle,
+                },
                 { key: '6', label: 'Option 6', style: menuItemStyle },
                 {
                     key: 'sub3',
@@ -58,7 +66,15 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             label: 'Navigation Three',
             icon: <Icon icon="material-symbols:battery-android-bolt-outline" size={28} color="blue" />,
             children: [
-                { key: '9', label: 'Option 9', style: menuItemStyle },
+                {
+                    key: '9',
+                    label: (
+                        <Popover placement="right" content="Prompt Text">
+                            Option 9
+                        </Popover>
+                    ),
+                    style: menuItemStyle,
+                },
                 { key: '10', label: 'Option 10', style: menuItemStyle },
                 { key: '11', label: 'Option 11', style: menuItemStyle },
                 { key: '12', label: 'Option 12', style: menuItemStyle },
@@ -95,28 +111,25 @@ export default function MenuView({ style }: { style: CSSProperties }) {
     };
 
     // 处理菜单选择，确保父级展开
-    const handleMenuSelect = useCallback(
-        ({ key }: { key: string }) => {
-            console.log('菜单点击选择:', key);
-            if (collapsed) {
-                return;
-            }
-            // 查找所有父级菜单路径
-            const parentKeys = findParentKeys(key, items);
-            if (parentKeys.length > 0) {
-                // 使用函数式更新，避免依赖 openKeys
-                setOpenKeys((prevOpenKeys) => {
-                    const keysToOpen = parentKeys.filter((parentKey) => !prevOpenKeys.includes(parentKey));
-                    if (keysToOpen.length > 0) {
-                        console.log('📂 自动展开父级菜单:', keysToOpen);
-                        return [...prevOpenKeys, ...keysToOpen];
-                    }
-                    return prevOpenKeys;
-                });
-            }
-        },
-        [items],
-    );
+    const handleMenuSelect = useCallback(({ key }: { key: string }) => {
+        console.log('菜单点击选择:', key);
+        if (collapsed) {
+            return;
+        }
+        // 查找所有父级菜单路径
+        const parentKeys = findParentKeys(key, items);
+        if (parentKeys.length > 0) {
+            // 使用函数式更新，避免依赖 openKeys
+            setOpenKeys((prevOpenKeys) => {
+                const keysToOpen = parentKeys.filter((parentKey) => !prevOpenKeys.includes(parentKey));
+                if (keysToOpen.length > 0) {
+                    console.log('📂 自动展开父级菜单:', keysToOpen);
+                    return [...prevOpenKeys, ...keysToOpen];
+                }
+                return prevOpenKeys;
+            });
+        }
+    }, []);
 
     // 监听 activeKey 变化，自动展开对应的父级菜单
     useEffect(() => {
@@ -124,7 +137,7 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             console.log('activeKey 变化:', activeKey);
             handleMenuSelect({ key: activeKey });
         }
-    }, [activeKey, handleMenuSelect]);
+    }, [activeKey]);
 
     // 处理菜单点击，只在 Tab 内切换，不跳转 URL
     const handleMenuClick = (key: string) => {
@@ -147,6 +160,11 @@ export default function MenuView({ style }: { style: CSSProperties }) {
         console.log('菜单点击:', key);
     };
 
+    const handlerOpennChage = (openKeys: string[]) => {
+        console.log('展开菜单:', openKeys);
+        setOpenKeys(openKeys);
+    };
+
     return (
         <Layout.Sider
             style={{
@@ -157,7 +175,7 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             collapsed={collapsed}
         >
             <Menu
-                theme="dark"
+                theme="light"
                 style={{
                     height: '100%',
                     flex: 1,
@@ -171,7 +189,7 @@ export default function MenuView({ style }: { style: CSSProperties }) {
                 defaultSelectedKeys={['Home']}
                 selectedKeys={[activeKey]}
                 openKeys={openKeys}
-                onOpenChange={setOpenKeys}
+                onOpenChange={handlerOpennChage}
                 mode="inline"
                 onClick={({ key }) => handleMenuClick(key)}
                 onSelect={handleMenuSelect}

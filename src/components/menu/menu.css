@@ -24,8 +24,11 @@
     padding-right: 0%;
 }
 
+span.ant-menu-title-content,
+span.ant-menu-title-content > span {
+    max-width: 138px;
+}
 
-span.ant-menu-title-content{
-  max-width: 138px;
-  width: 138px;
+span.ant-menu-title-content > span {
+    display: inline-block;
 }
