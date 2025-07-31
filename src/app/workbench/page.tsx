@@ -1,13 +1,14 @@
 'use client';
 
-import { Layout } from 'antd';
+import { Flex, Layout, Modal } from 'antd';
 import { redirect } from 'next/navigation';
+import { useState } from 'react';
 
 import { Icon } from '@/components/icon';
 import MenuView from '@/components/menu/menu';
 import { TabPanes } from '@/components/tab';
 import { useAppStore } from '@/store/app-store';
-import { useUserToken } from '@/store/user-store';
+import { useUserActions, useUserToken } from '@/store/user-store';
 
 const { Header, Footer } = Layout;
 const headerStyle: React.CSSProperties = {
@@ -56,6 +57,23 @@ const layoutStyle = {
 export default function WorkbenchLayout() {
     const { collapsed, setCollapsed } = useAppStore();
     const token = useUserToken();
+    const { clearUserInfoAndToken } = useUserActions();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+        setIsModalOpen(false);
+        console.log('logout');
+        clearUserInfoAndToken();
+        window.location.reload();
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
     if (!token?.accessToken) {
         redirect('/');
         return null;
@@ -70,7 +88,10 @@ export default function WorkbenchLayout() {
             <MenuView style={siderStyle} />
             <Layout>
                 <Header style={headerStyle}>
-                    <Icon icon="mdi-light:home" onClick={handleClick} size={40} />
+                    <Flex>
+                        <Icon icon="mdi-light:home" onClick={handleClick} size={40} />
+                        <Icon icon="material-symbols-light:logout-rounded" onClick={showModal} size={40} />
+                    </Flex>
                 </Header>
                 <Layout>
                     {/* <Content style={contentStyle}>{children || 'content'}</Content> */}
@@ -78,6 +99,15 @@ export default function WorkbenchLayout() {
                     <Footer style={footerStyle}>Footer</Footer>
                 </Layout>
             </Layout>
+            <Modal
+                title="退出登录"
+                closable={{ 'aria-label': 'Custom Close Button' }}
+                open={isModalOpen}
+                onOk={handleOk}
+                onCancel={handleCancel}
+            >
+                <p>确认退出？</p>
+            </Modal>
         </Layout>
     );
 }
