@@ -1,9 +1,8 @@
 'use client';
 
-import { Col, Layout, Row } from 'antd';
+import { Layout } from 'antd';
 
 import { Icon } from '@/components/icon';
-import Logo from '@/components/logo';
 import MenuView from '@/components/menu/menu';
 import { TabPanes } from '@/components/tab';
 import { useAppStore } from '@/store/app-store';
@@ -16,6 +15,17 @@ const headerStyle: React.CSSProperties = {
     paddingInline: 8,
     lineHeight: '64px',
     backgroundColor: '#4096ff',
+};
+
+const contentStyle: React.CSSProperties = {
+    textAlign: 'center',
+    minHeight: 'calc(100vh - 128px)', // 减去 header 和 footer 的高度
+    lineHeight: 'normal',
+    color: '#fff',
+    backgroundColor: '#fff',
+    padding: '20px',
+    display: 'flex',
+    justifyContent: 'center',
 };
 
 const siderStyle: React.CSSProperties = {
@@ -53,24 +63,14 @@ export default function WorkbenchLayout({
     }
     return (
         <Layout style={layoutStyle}>
-            <Header style={headerStyle}>
-                <Row style={{ height: '100%', width: '100%' }}>
-                    <Col span={6}>
-                        <Logo />
-                    </Col>
-                    <Col span={12}>
-                        <Icon icon="mdi-light:home" onClick={handleClick} size={40} />
-                    </Col>
-                    <Col span={6}>
-                        <Logo />
-                    </Col>
-                </Row>
-            </Header>
+            <MenuView style={siderStyle} />
             <Layout>
-                <MenuView style={siderStyle} />
+                <Header style={headerStyle}>
+                    <Icon icon="mdi-light:home" onClick={handleClick} size={40} />
+                </Header>
                 <Layout>
                     {/* <Content style={contentStyle}>{children || 'content'}</Content> */}
-                    <TabPanes />
+                    <TabPanes style={contentStyle} />
                     <Footer style={footerStyle}>Footer</Footer>
                 </Layout>
             </Layout>

@@ -1,7 +1,7 @@
 import type { ItemType } from 'antd/es/menu/interface';
 import type { CSSProperties } from 'react';
 
-import { Layout, Menu, Popover } from 'antd';
+import { Image, Layout, Menu, Popover } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useAppStore } from '@/store/app-store';
@@ -174,6 +174,9 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             }}
             collapsed={collapsed}
         >
+            <div className="logo">
+                <Image src="icon.svg" alt="logo" />
+            </div>
             <Menu
                 theme="light"
                 style={{

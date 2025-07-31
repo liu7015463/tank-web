@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="300" viewBox="0 0 900 300" style="background:#0d0f1a">
+    <!-- 超大比例居中的TANK-WEB文字（占宽度80%） -->
+    <g font-family="'Impact', 'Arial Black', sans-serif" text-anchor="middle" dominant-baseline="middle">
+        <!-- TANK部分 - 军事绿色 -->
+        <text x="270" y="150" font-size="160" fill="#3a8c4a" stroke="#2a623d" stroke-width="3" letter-spacing="2">TANK</text>
+
+        <!-- WEB部分 - 科技蓝色 -->
+        <text x="630" y="150" font-size="160" fill="#4a9dfa" stroke="#2a5a8c" stroke-width="3" letter-spacing="2">WEB</text>
+
+        <!-- 连字符 -->
+        <text x="450" y="150" font-size="160" fill="#aaa" font-weight="bold">-</text>
+    </g>
+</svg>

@@ -11,8 +11,13 @@ import { useTabStore } from '@/store/tab-store';
 
 import { generateTabTitle, getRouteConfig } from '../router/routes';
 import { TabContent } from './tab-content';
+import $style from './tab.module.css';
 
-export const TabPanes: FC = () => {
+interface TabPanesProps {
+    style?: React.CSSProperties;
+}
+
+export const TabPanes: FC<TabPanesProps> = ({ style }) => {
     const router = useRouter();
     const pathname = usePathname();
     console.log('pathname', pathname);
@@ -127,7 +132,8 @@ export const TabPanes: FC = () => {
     return (
         <div className="h-full">
             <Tabs
-                className="h-full"
+                style={style}
+                className={$style.tabs}
                 activeKey={activeKey}
                 hideAdd={true}
                 onChange={handleTabChange}
