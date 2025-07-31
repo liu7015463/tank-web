@@ -8,12 +8,10 @@ import type { TabContentProps } from '@/types/entity';
 import { useTabStore } from '@/store/tab-store';
 
 const componentMap: Record<string, () => Promise<{ default: ComponentType<any> }>> = {
-    Home: () => import('@/app/workbench/page'),
+    Home: () => import('@/components/pages/workspace-page'),
     Dashboard: () => import('@/components/pages/dashboard-page'),
     UserList: () => import('@/components/pages/users-page'),
     UserDetail: () => import('@/components/pages/user-detail-page'),
-    '/404': () => import('@/app/workbench/page'),
-    '/500': () => import('@/app/workbench/page'),
 };
 
 const NotFoundComponent: ComponentType<TabContentProps> = ({ component, path, tabKey: key }) => {

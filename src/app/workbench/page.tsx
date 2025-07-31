@@ -1,23 +1,83 @@
 'use client';
 
-import { useTabStore } from '@/store/tab-store';
-import { useUserInfo } from '@/store/user-store';
+import { Layout } from 'antd';
+import { redirect } from 'next/navigation';
 
-export default function WorkbenchPage() {
-    const userInfo = useUserInfo();
-    const { activeKey } = useTabStore();
+import { Icon } from '@/components/icon';
+import MenuView from '@/components/menu/menu';
+import { TabPanes } from '@/components/tab';
+import { useAppStore } from '@/store/app-store';
+import { useUserToken } from '@/store/user-store';
+
+const { Header, Footer } = Layout;
+const headerStyle: React.CSSProperties = {
+    textAlign: 'center',
+    color: '#fff',
+    height: 64,
+    paddingInline: 8,
+    lineHeight: '64px',
+    backgroundColor: '#4096ff',
+};
+
+const contentStyle: React.CSSProperties = {
+    textAlign: 'center',
+    minHeight: 'calc(100vh - 128px)', // 减去 header 和 footer 的高度
+    lineHeight: 'normal',
+    color: '#fff',
+    backgroundColor: '#fff',
+    padding: '20px',
+    display: 'flex',
+    justifyContent: 'center',
+};
+
+const siderStyle: React.CSSProperties = {
+    textAlign: 'center',
+    lineHeight: 'normal',
+    color: '#fff',
+    backgroundColor: '#1677ff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '15%',
+};
+
+const footerStyle: React.CSSProperties = {
+    textAlign: 'center',
+    color: '#fff',
+    backgroundColor: '#4096ff',
+};
+
+const layoutStyle = {
+    overflow: 'hidden',
+    width: '100%',
+    height: '100vh',
+    minHeight: '100vh',
+};
+export default function WorkbenchLayout() {
+    const { collapsed, setCollapsed } = useAppStore();
+    const token = useUserToken();
+    if (!token?.accessToken) {
+        redirect('/');
+        return null;
+    }
+
+    function handleClick() {
+        console.log('click the logo');
+        setCollapsed(!collapsed);
+    }
     return (
-        <div className="p-8" style={{ color: 'black' }}>
-            <h1 className="mb-4 text-2xl font-bold">工作台</h1>
-            <div className="rounded-lg bg-white p-6 shadow">
-                <h2 className="mb-2 text-lg font-semibold">欢迎回来!</h2>
-                {userInfo.username && (
-                    <p className="text-gray-600">
-                        用户: {userInfo.username} ({userInfo.email})
-                    </p>
-                )}
-                <p className="text-gray-600">currentTab: {activeKey}</p>
-            </div>
-        </div>
+        <Layout style={layoutStyle}>
+            <MenuView style={siderStyle} />
+            <Layout>
+                <Header style={headerStyle}>
+                    <Icon icon="mdi-light:home" onClick={handleClick} size={40} />
+                </Header>
+                <Layout>
+                    {/* <Content style={contentStyle}>{children || 'content'}</Content> */}
+                    <TabPanes style={contentStyle} />
+                    <Footer style={footerStyle}>Footer</Footer>
+                </Layout>
+            </Layout>
+        </Layout>
     );
 }
