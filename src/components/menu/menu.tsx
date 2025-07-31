@@ -25,6 +25,7 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             key: 'Home',
             label: 'Option 1',
             style: menuItemStyle,
+            icon: <Icon icon="material-symbols:home-work-outline-rounded" size={28} />,
         },
         {
             key: 'sub1',
@@ -174,8 +175,8 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             }}
             collapsed={collapsed}
         >
-            <div className="logo">
-                <Image src="icon.svg" alt="logo" />
+            <div>
+                <Image src="icon.svg" alt="logo" preview={false} height={64} width="100%" />
             </div>
             <Menu
                 theme="light"

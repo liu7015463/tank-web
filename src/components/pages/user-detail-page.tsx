@@ -25,9 +25,7 @@ const UserDetailPage: FC = () => {
                     <Descriptions.Item label="地址">北京市朝阳区</Descriptions.Item>
                     <Descriptions.Item label="注册时间">2023-01-15 10:30:00</Descriptions.Item>
                     <Descriptions.Item label="最后登录">2024-01-30 14:25:00</Descriptions.Item>
-                    <Descriptions.Item label="备注" span={3}>
-                        这是一个测试用户，用于演示用户详情页面的功能。
-                    </Descriptions.Item>
+                    <Descriptions.Item label="备注">这是一个测试用户，用于演示用户详情页面的功能。</Descriptions.Item>
                 </Descriptions>
             </Card>
 

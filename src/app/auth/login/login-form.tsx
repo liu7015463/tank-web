@@ -26,7 +26,7 @@ export default function LoginForm() {
         }
     };
     return (
-        <div className="flex flex-col gap-5">
+        <div className="flex w-full flex-col items-center justify-center gap-5">
             <Form
                 name="login"
                 style={{ maxWidth: 600 }}
