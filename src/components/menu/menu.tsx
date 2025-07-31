@@ -2,35 +2,38 @@ import type { ItemType } from 'antd/es/menu/interface';
 import type { CSSProperties } from 'react';
 
 import { Layout, Menu } from 'antd';
-import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useAppStore } from '@/store/app-store';
 import { useTabStore } from '@/store/tab-store';
-import { getKeyName } from '@/utils';
 
 import Icon from '../icon/icon';
 import { generateTabTitle, getRouteConfigByKey } from '../router/routes';
+import './menu.css';
 
 export default function MenuView({ style }: { style: CSSProperties }) {
-    const collapsed = useAppStore((state) => state.collapsed);
-    const path = usePathname();
-    const { tabKey: _curKey = 'home' } = getKeyName(path);
+    const collapsed = useAppStore((state) => state.collapsed); // 在 MenuView 组件中添加以下样式
+    const menuItemStyle: CSSProperties = {
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    };
 
-    const setCurrentTab = useAppStore((state) => state.setCurrentTab);
+    // 修改 items 数据结构，为每个菜单项添加样式
     const items: ItemType[] = [
         {
             key: 'Home',
             label: 'Option 1',
+            style: menuItemStyle,
         },
         {
             key: 'sub1',
             label: 'Navigation One',
             icon: <Icon icon="noto:blowfish" color="blue" size={28} />,
             children: [
-                { key: 'UserDetail', label: 'Option 2' },
-                { key: 'UserList1', label: 'Option 3' },
-                { key: 'Dashboard', label: 'Option 4' },
+                { key: 'UserDetail', label: 'Option 2', style: menuItemStyle },
+                { key: 'UserList1', label: 'Option 3', style: menuItemStyle },
+                { key: 'Dashboard', label: 'Option 4', style: menuItemStyle },
             ],
         },
         {
@@ -38,14 +41,14 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             label: 'Navigation Two',
             icon: <Icon icon="mdi-light:home" size={28} color="red" />,
             children: [
-                { key: 'Dashboard2', label: 'Dashboard (测试自动展开)' },
-                { key: '6', label: 'Option 6' },
+                { key: 'Dashboard2', label: 'Dashboard (测试自动展开)', style: menuItemStyle },
+                { key: '6', label: 'Option 6', style: menuItemStyle },
                 {
                     key: 'sub3',
                     label: 'Submenu',
                     children: [
-                        { key: 'UserList', label: 'User List (嵌套测试)' },
-                        { key: '8', label: 'Option 8' },
+                        { key: 'UserList', label: 'User List (嵌套测试)', style: menuItemStyle },
+                        { key: '8', label: 'Option 8', style: menuItemStyle },
                     ],
                 },
             ],
@@ -55,10 +58,10 @@ export default function MenuView({ style }: { style: CSSProperties }) {
             label: 'Navigation Three',
             icon: <Icon icon="material-symbols:battery-android-bolt-outline" size={28} color="blue" />,
             children: [
-                { key: '9', label: 'Option 9' },
-                { key: '10', label: 'Option 10' },
-                { key: '11', label: 'Option 11' },
-                { key: '12', label: 'Option 12' },
+                { key: '9', label: 'Option 9', style: menuItemStyle },
+                { key: '10', label: 'Option 10', style: menuItemStyle },
+                { key: '11', label: 'Option 11', style: menuItemStyle },
+                { key: '12', label: 'Option 12', style: menuItemStyle },
             ],
         },
     ];
@@ -125,7 +128,6 @@ export default function MenuView({ style }: { style: CSSProperties }) {
 
     // 处理菜单点击，只在 Tab 内切换，不跳转 URL
     const handleMenuClick = (key: string) => {
-        setCurrentTab(key);
         const routeConfig = getRouteConfigByKey(key);
         if (routeConfig) {
             const tabTitle = generateTabTitle(routeConfig, routeConfig.path);
