@@ -128,7 +128,6 @@ export const TabPanes: FC<TabPanesProps> = ({ style }) => {
         }));
     }, [tabs, reloadPath, getMenuItems]);
 
-    console.log('tabs', tabs);
     return (
         <div className="h-full">
             <Tabs

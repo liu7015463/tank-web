@@ -7,7 +7,7 @@ export default function WorkbenchPage() {
     const userInfo = useUserInfo();
     const { activeKey } = useTabStore();
     return (
-        <div className="p-8">
+        <div className="p-8" style={{ color: 'black' }}>
             <h1 className="mb-4 text-2xl font-bold">工作台</h1>
             <div className="rounded-lg bg-white p-6 shadow">
                 <h2 className="mb-2 text-lg font-semibold">欢迎回来!</h2>
