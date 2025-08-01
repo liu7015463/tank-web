@@ -1,11 +1,15 @@
 import type { FormProps } from 'antd';
 
 import { Button, Checkbox, Form, Input } from 'antd';
+import { isEmpty, isNil } from 'lodash';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import type { SignInReq } from '@/types/auth';
 
 import { useSignIn } from '@/store/user-store';
+
+import { userNameStore } from '../../../store/uaername-store';
 
 interface FieldType {
     username?: string;
@@ -15,8 +19,18 @@ interface FieldType {
 export default function LoginForm() {
     const signin = useSignIn();
     const router = useRouter();
+    const { username, setUsername } = userNameStore();
+    const initRem = !isNil(username) && !isEmpty(username);
+    const [remember, setRemember] = useState<boolean>(initRem);
 
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+        if (remember) {
+            if (values.username) {
+                setUsername(values.username);
+            }
+        } else {
+            setUsername('');
+        }
         try {
             console.log('Success:', values);
             await signin(values as SignInReq);
@@ -31,7 +45,7 @@ export default function LoginForm() {
                 name="login"
                 style={{ maxWidth: 600 }}
                 autoComplete="off"
-                initialValues={{ remember: true }}
+                initialValues={{ remember, username: username || '' }}
                 labelCol={{ span: 8 }}
                 onFinish={onFinish}
             >
@@ -47,7 +61,13 @@ export default function LoginForm() {
                     <Input.Password placeholder="密码" />
                 </Form.Item>
                 <Form.Item<FieldType> valuePropName="checked" name="remember" label={null}>
-                    <Checkbox>Remember me</Checkbox>
+                    <Checkbox
+                        onChange={() => {
+                            setRemember(!remember);
+                        }}
+                    >
+                        Remember me
+                    </Checkbox>
                 </Form.Item>
                 <Form.Item label={null}>
                     <Button type="primary" htmlType="submit">
