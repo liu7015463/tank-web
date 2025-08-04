@@ -53,6 +53,7 @@ export const useSignIn = () => {
     const signin = async (data: SignInReq) => {
         try {
             const res = await signInMutation.mutateAsync(data);
+            console.log(res);
             const { userInfo, accessToken, refreshToken } = res;
             setUserToken({ accessToken, refreshToken });
             setUserInfo(userInfo);

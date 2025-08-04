@@ -8,7 +8,7 @@ import userStore from '@/store/user-store';
 import { ResultStats } from '@/types/enum';
 
 const axiosInstance = axios.create({
-    baseURL: process.env.NODE_ENV === 'development' ? '' : 'http://localhost:3005',
+    baseURL: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'http://localhost:3000',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json;charset=utf-8',
@@ -25,14 +25,15 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
     (res: AxiosResponse<Result<any>>) => {
+        console.log('res', res);
         if (!res.data) {
             throw new Error('请求出错，请稍候重试');
         }
-        const { status, message, data } = res.data;
-        if (status !== ResultStats.SUCCESS) {
-            throw new Error(message || '请求出错，请稍候重试');
+        const { status, data } = res;
+        if (status === ResultStats.SUCCESS || status === 200 || status === 201) {
+            return data as any;
         }
-        return data;
+        throw new Error('请求出错，请稍候重试');
     },
     (error: AxiosError<Result<any>>) => {
         const { response, message } = error || {};

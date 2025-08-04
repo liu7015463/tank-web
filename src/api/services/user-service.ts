@@ -7,7 +7,10 @@ import apiClient from '../api-client';
 const signin = (data: SignInReq) =>
     apiClient.post<SignInRes>({
         url: UserApi.SignIn,
-        data,
+        data: {
+            credential: data.username,
+            password: data.password,
+        },
     });
 
 const logout = () =>

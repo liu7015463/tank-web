@@ -1,6 +1,6 @@
 import type { FormProps } from 'antd';
 
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Checkbox, Form, Input, message } from 'antd';
 import { isEmpty, isNil } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -22,6 +22,7 @@ export default function LoginForm() {
     const { username, setUsername } = userNameStore();
     const initRem = !isNil(username) && !isEmpty(username);
     const [remember, setRemember] = useState<boolean>(initRem);
+    const [messageApi, contextHolder] = message.useMessage();
 
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
         if (remember) {
@@ -33,14 +34,18 @@ export default function LoginForm() {
         }
         try {
             console.log('Success:', values);
-            await signin(values as SignInReq);
+            const data = await signin(values as SignInReq);
+            console.log('data', data);
+            messageApi.success('登录成功');
             router.push('/workbench');
         } catch (error) {
             console.error('Login failed:', error);
+            messageApi.error('登录失败，请检查用户名和密码');
         }
     };
     return (
         <div className="flex w-full flex-col items-center justify-center gap-5">
+            {contextHolder}
             <Form
                 name="login"
                 style={{ maxWidth: 600 }}
