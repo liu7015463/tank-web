@@ -18,7 +18,7 @@ export const routes: RouteConfig[] = [
     {
         path: '/workbench',
         name: '用户管理',
-        key: 'UserList',
+        key: 'user-manage',
         component: 'UserList',
         icon: 'UserOutlined',
     },

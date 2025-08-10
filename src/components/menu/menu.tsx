@@ -19,17 +19,15 @@ export default function MenuView({ style }: { style: CSSProperties }) {
     // 管理菜单展开状态
     const [openKeys, setOpenKeys] = useState<string[]>([]);
 
-    // 处理菜单选择，确保父级展开
-    const handleMenuSelect = useCallback(
-        ({ key }: { key: string }) => {
-            console.log('菜单点击选择:', key);
-            if (collapsed) {
+    // 自动展开父级菜单的函数
+    const autoExpandParentKeys = useCallback(
+        (key: string) => {
+            if (!menuItems || collapsed) {
                 return;
             }
             // 查找所有父级菜单路径
             const parentKeys = findParentKeys(key, menuItems);
             if (parentKeys.length > 0) {
-                // 使用函数式更新，避免依赖 openKeys
                 setOpenKeys((prevOpenKeys) => {
                     const keysToOpen = parentKeys.filter((parentKey) => !prevOpenKeys.includes(parentKey));
                     if (keysToOpen.length > 0) {
@@ -40,16 +38,30 @@ export default function MenuView({ style }: { style: CSSProperties }) {
                 });
             }
         },
-        [collapsed, menuItems],
+        [menuItems, collapsed],
+    );
+
+    // 处理菜单选择，确保父级展开
+    const handleMenuSelect = useCallback(
+        ({ key }: { key: string }) => {
+            console.log('菜单点击选择:', key);
+            autoExpandParentKeys(key);
+        },
+        [autoExpandParentKeys],
     );
 
     // 监听 activeKey 变化，自动展开对应的父级菜单
     useEffect(() => {
         if (activeKey) {
             console.log('activeKey 变化:', activeKey);
-            handleMenuSelect({ key: activeKey });
+            // 使用 setTimeout 来避免在 useEffect 中直接调用 setState
+            const timer = setTimeout(() => {
+                autoExpandParentKeys(activeKey);
+            }, 0);
+            return () => clearTimeout(timer);
         }
-    }, [activeKey]);
+        return undefined;
+    }, [activeKey, autoExpandParentKeys]);
 
     // 处理菜单点击，只在 Tab 内切换，不跳转 URL
     const handleMenuClick = (key: string) => {
