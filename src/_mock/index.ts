@@ -1,6 +1,7 @@
+import { getMenuTree } from './handlers/_menu';
 import { signIn } from './handlers/_user';
 
-const handlers = [signIn];
+const handlers = [signIn, getMenuTree];
 
 // Create a function to get worker only in browser environment
 const getWorker = async () => {

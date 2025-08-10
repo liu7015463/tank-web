@@ -10,11 +10,22 @@ export enum ResultStats {
     TIMEOUT = 401,
 }
 
-export enum PermissionType {
+/**
+ * 菜单权限类型枚举
+ */
+export enum MenuPermissionType {
+    /** 分组 */
     GROUP = 0,
+    /** 目录  */
     CATALOGUE = 1,
+    /** 菜单 */
     MENU = 2,
+    /** 页面 */
     COMPONENT = 3,
+    /** 功能 */
+    FUNCTION = 4,
+    /** 按钮 */
+    BUTTON = 5,
 }
 
 export enum StorageEnum {
@@ -27,4 +38,8 @@ export enum StorageEnum {
 export enum UserApi {
     SignIn = '/api/user/account/login',
     Logout = '/api/user/logout',
+}
+
+export enum MenuApi {
+    MenuTree = '/api/v1/rbac/menus/tree',
 }

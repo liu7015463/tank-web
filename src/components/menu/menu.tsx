@@ -1,136 +1,47 @@
-import type { ItemType } from 'antd/es/menu/interface';
 import type { CSSProperties } from 'react';
 
-import { Image, Layout, Menu, Popover } from 'antd';
+import { Alert, Image, Layout, Menu, Spin } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 
+import { useMenu } from '@/hooks/use-menu';
 import { useAppStore } from '@/store/app-store';
 import { useTabStore } from '@/store/tab-store';
+import { findParentKeys } from '@/utils/menu-utils';
 
-import Icon from '../icon/icon';
 import { generateTabTitle, getRouteConfigByKey } from '../router/routes';
 import './menu.css';
 
 export default function MenuView({ style }: { style: CSSProperties }) {
-    const collapsed = useAppStore((state) => state.collapsed); // 在 MenuView 组件中添加以下样式
-    const menuItemStyle: CSSProperties = {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-    };
-
-    // 修改 items 数据结构，为每个菜单项添加样式
-    const items: ItemType[] = [
-        {
-            key: 'Home',
-            label: 'Option 1',
-            style: menuItemStyle,
-            icon: <Icon icon="material-symbols:home-work-outline-rounded" size={28} />,
-        },
-        {
-            key: 'sub1',
-            label: 'Navigation One',
-            icon: <Icon icon="noto:blowfish" color="blue" size={28} />,
-            children: [
-                { key: 'UserDetail', label: 'Option 2', style: menuItemStyle },
-                { key: 'UserList1', label: 'Option 3', style: menuItemStyle },
-                { key: 'Dashboard', label: 'Option 4', style: menuItemStyle },
-            ],
-        },
-        {
-            key: 'sub2',
-            label: 'Navigation Two',
-            icon: <Icon icon="mdi-light:home" size={28} color="red" />,
-            children: [
-                {
-                    key: 'Dashboard2',
-                    label: (
-                        <Popover placement="right" content="Dashboard (测试自动展开)">
-                            Dashboard (测试自动展开)
-                        </Popover>
-                    ),
-                    style: menuItemStyle,
-                },
-                { key: '6', label: 'Option 6', style: menuItemStyle },
-                {
-                    key: 'sub3',
-                    label: 'Submenu',
-                    children: [
-                        { key: 'UserList', label: 'User List (嵌套测试)', style: menuItemStyle },
-                        { key: '8', label: 'Option 8', style: menuItemStyle },
-                    ],
-                },
-            ],
-        },
-        {
-            key: 'sub4',
-            label: 'Navigation Three',
-            icon: <Icon icon="material-symbols:battery-android-bolt-outline" size={28} color="blue" />,
-            children: [
-                {
-                    key: '9',
-                    label: (
-                        <Popover placement="right" content="Prompt Text">
-                            Option 9
-                        </Popover>
-                    ),
-                    style: menuItemStyle,
-                },
-                { key: '10', label: 'Option 10', style: menuItemStyle },
-                { key: '11', label: 'Option 11', style: menuItemStyle },
-                { key: '12', label: 'Option 12', style: menuItemStyle },
-            ],
-        },
-    ];
+    const collapsed = useAppStore((state) => state.collapsed);
+    const { menuItems, isLoading, isError, error } = useMenu();
     const { addTab, activeKey, setActiveTab } = useTabStore();
 
     // 管理菜单展开状态
-    const [openKeys, setOpenKeys] = useState<string[]>([]); // 默认全部收起，测试自动展开功能
-
-    // 查找子菜单项的所有父级菜单路径
-    const findParentKeys = (targetKey: string, menuItems: ItemType[], parentPath: string[] = []): string[] => {
-        for (const item of menuItems) {
-            if (item && typeof item === 'object' && 'children' in item && item.children) {
-                const currentPath = [...parentPath, item.key as string];
-
-                // 检查直接子项
-                const hasDirectChild = item.children.some(
-                    (child) => child && typeof child === 'object' && 'key' in child && child.key === targetKey,
-                );
-                if (hasDirectChild) {
-                    return currentPath;
-                }
-
-                // 递归检查嵌套子项
-                const nestedPath = findParentKeys(targetKey, item.children as ItemType[], currentPath);
-                if (nestedPath.length > 0) {
-                    return nestedPath;
-                }
-            }
-        }
-        return [];
-    };
+    const [openKeys, setOpenKeys] = useState<string[]>([]);
 
     // 处理菜单选择，确保父级展开
-    const handleMenuSelect = useCallback(({ key }: { key: string }) => {
-        console.log('菜单点击选择:', key);
-        if (collapsed) {
-            return;
-        }
-        // 查找所有父级菜单路径
-        const parentKeys = findParentKeys(key, items);
-        if (parentKeys.length > 0) {
-            // 使用函数式更新，避免依赖 openKeys
-            setOpenKeys((prevOpenKeys) => {
-                const keysToOpen = parentKeys.filter((parentKey) => !prevOpenKeys.includes(parentKey));
-                if (keysToOpen.length > 0) {
-                    console.log('📂 自动展开父级菜单:', keysToOpen);
-                    return [...prevOpenKeys, ...keysToOpen];
-                }
-                return prevOpenKeys;
-            });
-        }
-    }, []);
+    const handleMenuSelect = useCallback(
+        ({ key }: { key: string }) => {
+            console.log('菜单点击选择:', key);
+            if (collapsed) {
+                return;
+            }
+            // 查找所有父级菜单路径
+            const parentKeys = findParentKeys(key, menuItems);
+            if (parentKeys.length > 0) {
+                // 使用函数式更新，避免依赖 openKeys
+                setOpenKeys((prevOpenKeys) => {
+                    const keysToOpen = parentKeys.filter((parentKey) => !prevOpenKeys.includes(parentKey));
+                    if (keysToOpen.length > 0) {
+                        console.log('📂 自动展开父级菜单:', keysToOpen);
+                        return [...prevOpenKeys, ...keysToOpen];
+                    }
+                    return prevOpenKeys;
+                });
+            }
+        },
+        [collapsed, menuItems],
+    );
 
     // 监听 activeKey 变化，自动展开对应的父级菜单
     useEffect(() => {
@@ -166,6 +77,53 @@ export default function MenuView({ style }: { style: CSSProperties }) {
         setOpenKeys(openKeys);
     };
 
+    // 渲染加载状态
+    if (isLoading) {
+        return (
+            <Layout.Sider
+                style={{
+                    ...style,
+                    overflow: 'hidden',
+                    boxSizing: 'border-box',
+                }}
+                collapsed={collapsed}
+            >
+                <div>
+                    <Image src="icon.svg" alt="logo" preview={false} height={64} width="100%" />
+                </div>
+                <div style={{ padding: '20px', textAlign: 'center' }}>
+                    <Spin size="large" />
+                </div>
+            </Layout.Sider>
+        );
+    }
+
+    // 渲染错误状态
+    if (isError) {
+        return (
+            <Layout.Sider
+                style={{
+                    ...style,
+                    overflow: 'hidden',
+                    boxSizing: 'border-box',
+                }}
+                collapsed={collapsed}
+            >
+                <div>
+                    <Image src="icon.svg" alt="logo" preview={false} height={64} width="100%" />
+                </div>
+                <div style={{ padding: '20px' }}>
+                    <Alert
+                        message="菜单加载失败"
+                        description={error?.message || '请检查网络连接'}
+                        type="error"
+                        showIcon
+                    />
+                </div>
+            </Layout.Sider>
+        );
+    }
+
     return (
         <Layout.Sider
             style={{
@@ -197,7 +155,7 @@ export default function MenuView({ style }: { style: CSSProperties }) {
                 mode="inline"
                 onClick={({ key }) => handleMenuClick(key)}
                 onSelect={handleMenuSelect}
-                items={items}
+                items={menuItems}
             />
         </Layout.Sider>
     );

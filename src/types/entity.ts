@@ -1,6 +1,4 @@
-import type { NavItemDataProps } from '@/components/nav/types';
-
-import type { BasicStatus, PermissionType } from './enum';
+import type { BasicStatus, MenuPermissionType } from './enum';
 
 export interface UserToken {
     accessToken?: string;
@@ -46,21 +44,19 @@ export interface Permission extends CommonOptions {
     code: string; // resource:action  example: "user-management:read"
 }
 
-export interface Menu extends CommonOptions, MenuMetaInfo {
+export interface Menu extends CommonOptions {
     id: string; // uuid
-    parentId: string;
+    parentId: string | null;
     name: string;
     code: string;
-    order?: number;
-    type: PermissionType;
+    path: string | null;
+    icon: string | null;
+    caption: string | null;
+    externalLink: string | null;
+    component: string | null;
+    customOrder: number;
+    type: MenuPermissionType;
 }
-
-export type MenuMetaInfo = Partial<
-    Pick<NavItemDataProps, 'path' | 'icon' | 'caption' | 'info' | 'disabled' | 'auth' | 'hidden'>
-> & {
-    externalLink?: URL;
-    component?: string;
-};
 
 export type MenuTree = Menu & {
     children?: MenuTree[];

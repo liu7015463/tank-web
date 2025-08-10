@@ -1,12 +1,13 @@
 import type { FormProps } from 'antd';
 
-import { Button, Checkbox, Form, Input, message } from 'antd';
+import { Button, Checkbox, Form, Input } from 'antd';
 import { isEmpty, isNil } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import type { SignInReq } from '@/types/auth';
 
+import { useGlobalMessage } from '@/hooks/use-global-message';
 import { useSignIn } from '@/store/user-store';
 
 import { userNameStore } from '../../../store/uaername-store';
@@ -22,7 +23,7 @@ export default function LoginForm() {
     const { username, setUsername } = userNameStore();
     const initRem = !isNil(username) && !isEmpty(username);
     const [remember, setRemember] = useState<boolean>(initRem);
-    const [messageApi, contextHolder] = message.useMessage();
+    const messageApi = useGlobalMessage();
 
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
         if (remember) {
@@ -45,7 +46,6 @@ export default function LoginForm() {
     };
     return (
         <div className="flex w-full flex-col items-center justify-center gap-5">
-            {contextHolder}
             <Form
                 name="login"
                 style={{ maxWidth: 600 }}
