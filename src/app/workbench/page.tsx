@@ -88,9 +88,13 @@ export default function WorkbenchLayout() {
             <MenuView style={siderStyle} />
             <Layout>
                 <Header style={headerStyle}>
-                    <Flex>
-                        <Icon icon="mdi-light:home" onClick={handleClick} size={40} />
-                        <Icon icon="material-symbols-light:logout-rounded" onClick={showModal} size={40} />
+                    <Flex style={{ height: '100%', width: '100%' }} align="center" justify="space-between">
+                        <Icon
+                            icon={collapsed ? 'pajamas:collapse-right' : 'pajamas:collapse-left'}
+                            onClick={handleClick}
+                            size={35}
+                        />
+                        <Icon icon="material-symbols-light:logout-rounded" onClick={showModal} size={35} />
                     </Flex>
                 </Header>
                 <Layout>

@@ -8,7 +8,7 @@ export const useTabStore = create<TabStore>()(
         tabs: [
             {
                 key: 'Home',
-                title: '首页-1',
+                title: '首页',
                 path: '/workbench',
                 closable: false,
                 component: 'Home',
