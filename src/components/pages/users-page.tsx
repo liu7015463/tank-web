@@ -1,54 +1,35 @@
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import type { FC } from 'react';
 
-import { Button, Card, Space, Table, Tag } from 'antd';
+import { Button, Card, Space, Table } from 'antd';
 import Link from 'next/link';
 
-interface DataType {
-    key: string;
-    name: string;
-    age: number;
-    address: string;
-    tags: string[];
-}
+import type { UserInfo } from '@/types/entity';
+
+import { useUserList } from '@/hooks/use-users';
 
 const UsersPage: FC = () => {
-    const columns: ColumnsType<DataType> = [
+    const columns: ColumnsType<UserInfo> = [
         {
             title: '姓名',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'username',
+            key: 'username',
             render: (text) => <Link href={'#'}>{text}</Link>,
         },
         {
-            title: '年龄',
-            dataIndex: 'age',
-            key: 'age',
+            title: '邮箱',
+            dataIndex: 'email',
+            key: 'email',
         },
         {
-            title: '住址',
-            dataIndex: 'address',
-            key: 'address',
+            title: '电话',
+            dataIndex: 'phone',
+            key: 'phone',
         },
         {
-            title: '标签',
-            key: 'tags',
-            dataIndex: 'tags',
-            render: (_, { tags }) => (
-                <>
-                    {tags.map((tag) => {
-                        let color = tag.length > 5 ? 'geekblue' : 'green';
-                        if (tag === 'loser') {
-                            color = 'volcano';
-                        }
-                        return (
-                            <Tag color={color} key={tag}>
-                                {tag.toUpperCase()}
-                            </Tag>
-                        );
-                    })}
-                </>
-            ),
+            title: '角色',
+            key: 'roles',
+            dataIndex: 'roles',
         },
         {
             title: '操作',
@@ -61,30 +42,15 @@ const UsersPage: FC = () => {
             ),
         },
     ];
+    const { data, isLoading, isError, error } = useUserList();
 
-    const data: DataType[] = [
-        {
-            key: '1',
-            name: '张三',
-            age: 32,
-            address: '北京市朝阳区',
-            tags: ['开发者', 'cool'],
-        },
-        {
-            key: '2',
-            name: '李四',
-            age: 42,
-            address: '上海市浦东新区',
-            tags: ['loser'],
-        },
-        {
-            key: '3',
-            name: '王五',
-            age: 32,
-            address: '广州市天河区',
-            tags: ['cool', 'teacher'],
-        },
-    ];
+    if (isError) {
+        return <div>{error?.message}</div>;
+    }
+
+    function handleTableChange(pagination: TablePaginationConfig): void {
+        console.log('分页变化:', pagination);
+    }
 
     return (
         <div className="p-6">
@@ -94,7 +60,18 @@ const UsersPage: FC = () => {
             </div>
 
             <Card>
-                <Table columns={columns} dataSource={data} />
+                <Table
+                    columns={columns}
+                    dataSource={data?.items}
+                    pagination={{
+                        current: data?.meta.currentPage ?? 1,
+                        pageSize: data?.meta.perPage ?? 10,
+                        total: data?.meta.totalItems ?? 0,
+                    }}
+                    rowKey={(r) => r.id}
+                    loading={isLoading}
+                    onChange={handleTableChange}
+                />
             </Card>
         </div>
     );

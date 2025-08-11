@@ -17,6 +17,22 @@ export interface UserInfo {
     menu?: MenuTree[];
 }
 
+export interface PagaginateResult<T> {
+    items: T[];
+    meta: {
+        currentPage: number;
+        itemCount: number;
+        perPage: number;
+        totalItems: number;
+        totalPages: number;
+    };
+}
+
+export interface Paginate {
+    current: number;
+    pageSize: number;
+}
+
 export interface CommonOptions {
     status?: BasicStatus;
     desc?: string;

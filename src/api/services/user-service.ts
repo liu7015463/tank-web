@@ -1,4 +1,5 @@
 import type { SignInReq, SignInRes } from '@/types/auth';
+import type { PagaginateResult, Paginate, UserInfo } from '@/types/entity';
 
 import { UserApi } from '@/types/enum';
 
@@ -18,4 +19,13 @@ const logout = () =>
         url: UserApi.Logout,
     });
 
-export default { signin, logout };
+const userList = ({ current, pageSize }: Paginate) =>
+    apiClient.get<PagaginateResult<UserInfo>>({
+        url: UserApi.UserList,
+        data: {
+            current,
+            pageSize,
+        },
+    });
+
+export default { signin, logout, userList };

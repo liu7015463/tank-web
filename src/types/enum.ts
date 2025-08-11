@@ -38,6 +38,7 @@ export enum StorageEnum {
 export enum UserApi {
     SignIn = '/api/user/account/login',
     Logout = '/api/user/logout',
+    UserList = '/api/user/users',
 }
 
 export enum MenuApi {
