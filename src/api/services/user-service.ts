@@ -19,13 +19,15 @@ const logout = () =>
         url: UserApi.Logout,
     });
 
-const userList = ({ current, pageSize }: Paginate) =>
-    apiClient.get<PagaginateResult<UserInfo>>({
+const userList = ({ current, pageSize }: Paginate) => {
+    console.log('current:', current, 'pageSize:', pageSize);
+    return apiClient.get<PagaginateResult<UserInfo>>({
         url: UserApi.UserList,
-        data: {
-            current,
-            pageSize,
+        params: {
+            page: current,
+            limit: pageSize,
         },
     });
+};
 
 export default { signin, logout, userList };
